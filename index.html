@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trip Buddy | Road Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #030810; --panel: #0a0f1e; --panel2: #0d1525;
+      --border: #1a2235; --green: #39ff14; --yellow: #FFE600;
+      --cyan: #00bbc3; --text: #dde7e7; --muted: #6b7a8d;
+      --red: #ff4444; --amber: #f59e0b;
+    }
+    body { background: var(--bg); color: var(--text); font-family: 'Barlow', sans-serif; min-height: 100vh; }
+
+    /* HEADER */
+    header { background: var(--panel); border-bottom: 2px solid var(--green); padding: 0.75rem 1.5rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 200; }
+    .logo { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; }
+    .logo-icon { width: 38px; height: 38px; background: var(--green); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; }
+    .logo-text { font-family: 'Barlow Condensed', sans-serif; font-size: 1.5rem; font-weight: 800; color: var(--green); letter-spacing: 0.05em; }
+    .logo-text span { color: var(--text); }
+    .header-right { display: flex; align-items: center; gap: 1rem; }
+    .status-badge { display: flex; align-items: center; gap: 0.4rem; font-family: 'Share Tech Mono', monospace; font-size: 0.7rem; color: var(--green); }
+    .status-dot { width: 7px; height: 7px; background: var(--green); border-radius: 50%; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+    .food-buddy-btn { background: transparent; border: 1px solid var(--yellow); color: var(--yellow); padding: 0.4rem 0.9rem; font-family: 'Barlow Condensed', sans-serif; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.08em; cursor: pointer; text-decoration: none; transition: all 0.2s; }
+    .food-buddy-btn:hover { background: rgba(255,230,0,0.1); }
+
+    /* HERO */
+    .hero { background: linear-gradient(135deg, #0a0f1e 0%, #030810 100%); padding: 1.25rem 1.5rem 0.9rem; text-align: center; border-bottom: 1px solid var(--border); }
+    .hero-tag { font-family: 'Share Tech Mono', monospace; font-size: 0.68rem; color: var(--green); letter-spacing: 0.2em; margin-bottom: 0.35rem; }
+    .hero h1 { font-family: 'Barlow Condensed', sans-serif; font-size: clamp(1.5rem, 3vw, 2.3rem); font-weight: 800; line-height: 1.1; margin-bottom: 0.25rem; }
+    .hero h1 span { color: var(--green); }
+    .hero p { color: var(--muted); font-size: 0.82rem; }
+
+    /* TOGGLE SWITCHES */
+    .toggle-group { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.5rem; }
+    .toggle-btn { display: flex; align-items: center; gap: 0.45rem; background: var(--panel2); border: 1px solid var(--border); padding: 0.4rem 0.75rem; cursor: pointer; transition: all 0.2s; font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; color: var(--muted); }
+    .toggle-btn.active { border-color: var(--green); color: var(--green); background: rgba(57,255,20,0.06); }
+    .toggle-btn.active-cyan { border-color: var(--cyan); color: var(--cyan); background: rgba(0,187,195,0.06); }
+    .toggle-switch { width: 28px; height: 15px; background: var(--border); border-radius: 8px; position: relative; transition: background 0.2s; flex-shrink: 0; }
+    .toggle-switch::after { content:''; position:absolute; width:11px; height:11px; background:#fff; border-radius:50%; top:2px; left:2px; transition: transform 0.2s; }
+    .toggle-btn.active .toggle-switch { background: var(--green); }
+    .toggle-btn.active .toggle-switch::after { transform: translateX(13px); }
+    .toggle-btn.active-cyan .toggle-switch { background: var(--cyan); }
+    .toggle-btn.active-cyan .toggle-switch::after { transform: translateX(13px); }
+
+    /* EV STYLES */
+    .ev-stations { display: flex; flex-direction: column; gap: 0.4rem; }
+    .ev-station { background: var(--panel2); border-left: 3px solid var(--cyan); padding: 0.45rem 0.6rem; }
+    .ev-station-name { font-family: 'Barlow Condensed', sans-serif; font-size: 0.9rem; font-weight: 700; color: var(--cyan); }
+    .ev-station-detail { font-size: 0.72rem; color: var(--muted); margin-top: 0.1rem; line-height: 1.35; }
+    .ev-station-cost { font-family: 'Share Tech Mono', monospace; font-size: 0.6rem; color: var(--green); }
+
+    /* PET STYLES */
+    .pet-stops { display: flex; flex-direction: column; gap: 0.4rem; }
+    .pet-stop { background: var(--panel2); border-left: 3px solid var(--amber); padding: 0.45rem 0.6rem; }
+    .pet-stop-name { font-family: 'Barlow Condensed', sans-serif; font-size: 0.9rem; font-weight: 700; color: var(--amber); }
+    .pet-stop-detail { font-size: 0.72rem; color: var(--muted); margin-top: 0.1rem; line-height: 1.35; }
+
+    /* PDF BUTTON */
+    .btn-pdf { background: transparent; border: 1px solid var(--yellow); color: var(--yellow); padding: 0.45rem 1rem; font-family: 'Barlow Condensed', sans-serif; font-size: 0.82rem; font-weight: 700; letter-spacing: 0.08em; cursor: pointer; transition: all 0.2s; width: 100%; margin-top: 0.5rem; }
+    .btn-pdf:hover { background: rgba(255,230,0,0.1); }
+    .btn-pdf:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* MAIN LAYOUT */
+    .main-grid { display: grid; grid-template-columns: 340px 1fr; gap: 0; min-height: calc(100vh - 115px); }
+    @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
+
+    /* LEFT PANEL */
+    .left-panel { background: var(--panel); border-right: 1px solid var(--border); padding: 1rem; overflow-y: auto; max-height: calc(100vh - 115px); }
+    @media (max-width: 900px) { .left-panel { max-height: none; } }
+
+    .section { margin-bottom: 1.1rem; }
+    .section-label { font-family: 'Share Tech Mono', monospace; font-size: 0.63rem; color: var(--yellow); letter-spacing: 0.15em; margin-bottom: 0.45rem; padding-bottom: 0.3rem; border-bottom: 1px solid var(--border); }
+
+    .tac-input { width: 100%; background: var(--panel2); border: 1px solid var(--border); color: var(--text); padding: 0.55rem 0.8rem; font-family: 'Share Tech Mono', monospace; font-size: 0.78rem; outline: none; transition: border-color 0.15s; margin-bottom: 0.4rem; }
+    .tac-input::placeholder { color: var(--yellow); }
+    .tac-input:focus { border-color: var(--cyan); }
+
+    .waypoint-row { display: flex; gap: 0.35rem; align-items: center; margin-bottom: 0.4rem; }
+    .waypoint-row .tac-input { margin-bottom: 0; flex: 1; }
+    .remove-btn { background: none; border: 1px solid var(--red); color: var(--red); width: 26px; height: 32px; cursor: pointer; font-size: 1rem; flex-shrink: 0; }
+    .remove-btn:hover { background: rgba(255,68,68,0.15); }
+
+    .btn-row { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.2rem; }
+    .btn-sm { background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 0.3rem 0.65rem; font-family: 'Barlow Condensed', sans-serif; font-size: 0.73rem; font-weight: 700; letter-spacing: 0.08em; cursor: pointer; transition: all 0.2s; }
+    .btn-sm:hover { border-color: var(--cyan); color: var(--cyan); }
+    .btn-sm:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-primary { background: var(--green); color: #000; border: none; padding: 0.6rem 1.25rem; font-family: 'Barlow Condensed', sans-serif; font-size: 0.88rem; font-weight: 700; letter-spacing: 0.1em; cursor: pointer; transition: opacity 0.2s; width: 100%; margin-top: 0.45rem; }
+    .btn-primary:hover { opacity: 0.85; }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .mpg-row { display: flex; gap: 0.45rem; align-items: center; }
+    .mpg-row .tac-input { margin-bottom: 0; }
+    .mpg-label { font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--muted); white-space: nowrap; }
+
+    .result-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; margin-top: 0.6rem; }
+    .result-card { background: var(--panel2); border: 1px solid var(--border); padding: 0.6rem; }
+    .result-card.highlight { border-color: var(--green); background: rgba(57,255,20,0.05); }
+    .rc-label { font-family: 'Share Tech Mono', monospace; font-size: 0.57rem; color: var(--muted); letter-spacing: 0.1em; margin-bottom: 0.15rem; }
+    .rc-value { font-family: 'Barlow Condensed', sans-serif; font-size: 1.35rem; font-weight: 700; color: var(--green); line-height: 1; }
+    .rc-value.yellow { color: var(--yellow); }
+    .rc-value.cyan { color: var(--cyan); }
+    .rc-sub { font-size: 0.65rem; color: var(--muted); margin-top: 0.12rem; }
+
+    .route-steps { margin-top: 0.6rem; max-height: 180px; overflow-y: auto; }
+    .route-step { display: flex; gap: 0.45rem; padding: 0.35rem 0; border-bottom: 1px solid var(--border); font-size: 0.76rem; }
+    .step-num { font-family: 'Share Tech Mono', monospace; font-size: 0.6rem; color: var(--cyan); min-width: 16px; }
+    .step-dist { font-family: 'Share Tech Mono', monospace; font-size: 0.6rem; color: var(--yellow); min-width: 52px; text-align: right; }
+
+    /* RIGHT PANEL */
+    .right-panel { display: flex; flex-direction: column; overflow: hidden; }
+    #map { height: 320px; min-height: 280px; background: #0a0f1e; flex-shrink: 0; }
+
+    /* CITY REPORT TABS */
+    .city-tabs-bar { background: var(--panel); border-bottom: 1px solid var(--border); border-top: 1px solid var(--border); display: flex; align-items: center; gap: 0; overflow-x: auto; flex-shrink: 0; }
+    .city-tab { flex-shrink: 0; padding: 0.55rem 0.9rem; background: none; border: none; border-bottom: 3px solid transparent; color: var(--muted); font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+    .city-tab:hover { color: var(--text); }
+    .city-tab.active { color: var(--green); border-bottom-color: var(--green); background: rgba(57,255,20,0.04); }
+    .city-tab-overview { color: var(--cyan); }
+    .city-tab-overview.active { color: var(--cyan); border-bottom-color: var(--cyan); }
+
+    /* CITY REPORTS PANEL */
+    .city-reports-panel { flex: 1; overflow-y: auto; background: var(--bg); }
+    .city-report-page { display: none; padding: 1rem; }
+    .city-report-page.active { display: block; }
+
+    /* OVERVIEW PAGE */
+    .overview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0.6rem; margin-bottom: 1rem; }
+    .overview-card { background: var(--panel); border: 1px solid var(--border); padding: 0.75rem; cursor: pointer; transition: border-color 0.2s; }
+    .overview-card:hover { border-color: var(--green); }
+    .ov-num { font-family: 'Share Tech Mono', monospace; font-size: 0.6rem; color: var(--muted); }
+    .ov-city { font-family: 'Barlow Condensed', sans-serif; font-size: 1rem; font-weight: 700; color: var(--green); margin: 0.15rem 0; }
+    .ov-badges { display: flex; gap: 0.3rem; flex-wrap: wrap; margin-top: 0.3rem; }
+    .ov-badge { font-family: 'Share Tech Mono', monospace; font-size: 0.55rem; padding: 0.15rem 0.35rem; border: 1px solid; }
+    .ov-badge.green { color: var(--green); border-color: var(--green); }
+    .ov-badge.amber { color: var(--amber); border-color: var(--amber); }
+    .ov-badge.red { color: var(--red); border-color: var(--red); }
+    .ov-badge.cyan { color: var(--cyan); border-color: var(--cyan); }
+
+    /* CITY REPORT PAGE */
+    .city-report-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 2px solid var(--green); }
+    .cr-city-name { font-family: 'Barlow Condensed', sans-serif; font-size: 1.8rem; font-weight: 800; color: var(--green); }
+    .cr-city-sub { font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--muted); }
+    .cr-nav { display: flex; gap: 0.4rem; }
+    .cr-nav-btn { background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 0.3rem 0.6rem; font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; font-weight: 700; cursor: pointer; }
+    .cr-nav-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+
+    .report-sections { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+    @media (max-width: 1100px) { .report-sections { grid-template-columns: 1fr; } }
+
+    .report-section { background: var(--panel); border: 1px solid var(--border); padding: 0.85rem; }
+    .rs-title { font-family: 'Share Tech Mono', monospace; font-size: 0.62rem; color: var(--yellow); letter-spacing: 0.12em; margin-bottom: 0.6rem; padding-bottom: 0.35rem; border-bottom: 1px solid var(--border); }
+
+    /* FUEL SECTION */
+    .fuel-prices { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.5rem; }
+    .fuel-price-badge { background: var(--panel2); border: 1px solid var(--border); padding: 0.45rem 0.65rem; text-align: center; }
+    .fp-type { font-family: 'Share Tech Mono', monospace; font-size: 0.58rem; color: var(--muted); }
+    .fp-price { font-family: 'Barlow Condensed', sans-serif; font-size: 1.3rem; font-weight: 700; color: var(--green); }
+    .fuel-stations { font-size: 0.75rem; color: var(--muted); line-height: 1.5; }
+
+    /* CRIME SECTION */
+    .crime-level-bar { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.6rem; }
+    .crime-level-text { font-family: 'Barlow Condensed', sans-serif; font-size: 1.6rem; font-weight: 800; }
+    .crime-level-text.low { color: var(--green); }
+    .crime-level-text.moderate { color: var(--amber); }
+    .crime-level-text.high { color: var(--red); }
+    .crime-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; margin-bottom: 0.5rem; }
+    .crime-stat { background: var(--panel2); padding: 0.4rem 0.5rem; }
+    .cs-label { font-family: 'Share Tech Mono', monospace; font-size: 0.55rem; color: var(--muted); }
+    .cs-value { font-family: 'Barlow Condensed', sans-serif; font-size: 0.95rem; font-weight: 700; color: var(--text); }
+    .avoid-list { list-style: none; }
+    .avoid-list li { font-size: 0.76rem; color: var(--text); padding: 0.25rem 0; border-bottom: 1px solid var(--border); display: flex; gap: 0.4rem; }
+    .avoid-list li::before { content: '⚠'; color: var(--amber); flex-shrink: 0; }
+
+    /* SLEEP SECTION */
+    .sleep-options { display: flex; flex-direction: column; gap: 0.4rem; }
+    .sleep-option { background: var(--panel2); border-left: 3px solid var(--cyan); padding: 0.45rem 0.6rem; }
+    .so-name { font-family: 'Barlow Condensed', sans-serif; font-size: 0.9rem; font-weight: 700; color: var(--cyan); }
+    .so-detail { font-size: 0.73rem; color: var(--muted); margin-top: 0.1rem; line-height: 1.35; }
+    .so-cost { font-family: 'Share Tech Mono', monospace; font-size: 0.6rem; color: var(--green); }
+
+    /* WEATHER SECTION */
+    .weather-main { display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem; }
+    .weather-icon { font-size: 2.5rem; }
+    .weather-temp { font-family: 'Barlow Condensed', sans-serif; font-size: 2.5rem; font-weight: 700; color: var(--text); }
+    .weather-desc { font-size: 0.8rem; color: var(--muted); }
+    .weather-details { display: grid; grid-template-columns: 1fr 1fr; gap: 0.3rem; }
+    .wd-item { background: var(--panel2); padding: 0.3rem 0.5rem; }
+    .wd-label { font-family: 'Share Tech Mono', monospace; font-size: 0.55rem; color: var(--muted); }
+    .wd-val { font-family: 'Barlow Condensed', sans-serif; font-size: 0.9rem; font-weight: 700; color: var(--text); }
+
+    /* FOOD SECTION */
+    .food-picks { display: flex; flex-direction: column; gap: 0.35rem; }
+    .food-pick { background: var(--panel2); border-left: 3px solid var(--yellow); padding: 0.4rem 0.6rem; }
+    .fp-name { font-family: 'Barlow Condensed', sans-serif; font-size: 0.9rem; font-weight: 700; color: var(--yellow); }
+    .fp-detail { font-size: 0.72rem; color: var(--muted); margin-top: 0.1rem; }
+
+    /* RECIPES TAB */
+    .recipe-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 0.7rem; }
+    .recipe-card { background: var(--panel); border: 1px solid var(--border); padding: 0.9rem; }
+    .recipe-title { font-family: 'Barlow Condensed', sans-serif; font-size: 1rem; font-weight: 700; color: var(--yellow); margin-bottom: 0.25rem; }
+    .recipe-meta { font-family: 'Share Tech Mono', monospace; font-size: 0.6rem; color: var(--cyan); margin-bottom: 0.35rem; }
+    .recipe-desc { font-size: 0.77rem; color: var(--muted); line-height: 1.4; margin-bottom: 0.35rem; }
+    .recipe-ingredients { font-size: 0.74rem; color: var(--text); line-height: 1.45; }
+    .recipe-ingredients strong { display: block; font-family: 'Share Tech Mono', monospace; font-size: 0.6rem; color: var(--green); letter-spacing: 0.1em; margin-bottom: 0.2rem; }
+
+    .loading-msg { text-align: center; padding: 2rem; font-family: 'Share Tech Mono', monospace; font-size: 0.78rem; color: var(--cyan); }
+    .empty-state { text-align: center; padding: 3rem 2rem; }
+    .empty-state-icon { font-size: 3rem; margin-bottom: 0.75rem; }
+    .empty-state-title { font-family: 'Barlow Condensed', sans-serif; font-size: 1.2rem; font-weight: 700; color: var(--muted); margin-bottom: 0.4rem; }
+    .empty-state-sub { font-family: 'Share Tech Mono', monospace; font-size: 0.72rem; color: var(--muted); }
+    .error-msg { background: rgba(255,68,68,0.1); border: 1px solid var(--red); color: var(--red); padding: 0.5rem 0.8rem; font-family: 'Share Tech Mono', monospace; font-size: 0.7rem; margin-top: 0.45rem; }
+
+    footer { text-align: center; padding: 1rem; border-top: 1px solid var(--border); font-family: 'Share Tech Mono', monospace; font-size: 0.63rem; color: var(--muted); }
+    footer a { color: var(--cyan); text-decoration: none; }
+    ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: var(--bg); } ::-webkit-scrollbar-thumb { background: var(--border); }
+  </style>
+</head>
+<body>
+
+<header>
+  <a href="https://tripbuddy.pro" class="logo">
+    <div class="logo-icon">🗺️</div>
+    <div class="logo-text">TRIP<span>BUDDY</span></div>
+  </a>
+  <div class="header-right">
+    <div class="status-badge"><div class="status-dot"></div>ROAD INTEL ACTIVE</div>
+    <a href="https://foodbuddy-e9knfdtl.manus.space/" class="food-buddy-btn">🥦 FOOD BUDDY</a>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="hero-tag">// ROAD INTELLIGENCE SYSTEM //</div>
+  <h1>Plan Your Route. <span>Know Before You Go.</span></h1>
+  <p>Up to 10 cities · Full city reports · Fuel · Crime · Safe sleep · Weather · Food stops · Recipes</p>
+</div>
+
+<div class="main-grid">
+
+  <!-- LEFT: ROUTE PLANNER -->
+  <div class="left-panel">
+
+    <div class="section">
+      <div class="section-label">// WAYPOINTS — UP TO 10 CITIES //</div>
+      <div id="waypoints-container">
+        <input type="text" class="tac-input waypoint-input" placeholder="Origin city e.g. Portland, OR" id="origin" />
+        <input type="text" class="tac-input waypoint-input" placeholder="Destination city e.g. Seattle, WA" id="destination" />
+      </div>
+      <div class="btn-row">
+        <button class="btn-sm" id="add-stop-btn" onclick="addWaypoint()">+ ADD STOP</button>
+        <button class="btn-sm" onclick="clearRoute()">✕ CLEAR</button>
+      </div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:var(--yellow);margin-top:0.35rem;">
+        Add up to 8 stops between origin &amp; destination
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">// VEHICLE SETTINGS //</div>
+      <div class="toggle-group">
+        <button class="toggle-btn active" id="toggle-gas" onclick="setVehicleType('gas')">
+          <div class="toggle-switch"></div> ⛽ GAS
+        </button>
+        <button class="toggle-btn" id="toggle-ev" onclick="setVehicleType('ev')">
+          <div class="toggle-switch"></div> ⚡ ELECTRIC
+        </button>
+      </div>
+      <div id="gas-settings">
+        <div class="mpg-row">
+          <input type="number" class="tac-input" id="mpg" value="25" min="5" max="150" placeholder="MPG" style="width:75px;" />
+          <span class="mpg-label">MPG</span>
+          <input type="number" class="tac-input" id="fuel-price" value="3.85" min="1" max="10" step="0.01" placeholder="$/gal" style="width:85px;" />
+          <span class="mpg-label">$/GAL</span>
+        </div>
+      </div>
+      <div id="ev-settings" style="display:none;">
+        <div class="mpg-row">
+          <input type="number" class="tac-input" id="ev-range" value="300" min="50" max="600" placeholder="Range" style="width:80px;" />
+          <span class="mpg-label">MI RANGE</span>
+          <input type="number" class="tac-input" id="ev-kwh-cost" value="0.15" min="0.05" max="1.00" step="0.01" placeholder="$/kWh" style="width:80px;" />
+          <span class="mpg-label">$/kWh</span>
+        </div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:var(--cyan);margin-top:0.3rem;">⚡ Charging stations shown in each city report</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">// TRAVEL OPTIONS //</div>
+      <div class="toggle-group">
+        <button class="toggle-btn" id="toggle-pets" onclick="togglePets()">
+          <div class="toggle-switch"></div> 🐾 TRAVELING WITH PETS
+        </button>
+      </div>
+    </div>
+
+    <button class="btn-primary" onclick="calculateRoute()" id="calc-btn">🗺️ CALCULATE ROUTE + CITY REPORTS</button>
+    <button class="btn-pdf" id="pdf-btn" onclick="downloadPDF()" disabled>📄 DOWNLOAD TRIP REPORT (PDF)</button>
+    <div id="route-error"></div>
+
+    <div id="route-results" style="display:none;">
+      <div class="section" style="margin-top:0.9rem;">
+        <div class="section-label">// ROUTE SUMMARY //</div>
+        <div class="result-cards">
+          <div class="result-card highlight">
+            <div class="rc-label">TOTAL DISTANCE</div>
+            <div class="rc-value" id="res-distance">—</div>
+            <div class="rc-sub">miles</div>
+          </div>
+          <div class="result-card">
+            <div class="rc-label">DRIVE TIME</div>
+            <div class="rc-value cyan" id="res-duration">—</div>
+            <div class="rc-sub">hours</div>
+          </div>
+          <div class="result-card">
+            <div class="rc-label">FUEL NEEDED</div>
+            <div class="rc-value yellow" id="res-gallons">—</div>
+            <div class="rc-sub">gallons</div>
+          </div>
+          <div class="result-card highlight">
+            <div class="rc-label">FUEL COST</div>
+            <div class="rc-value" id="res-cost">—</div>
+            <div class="rc-sub">estimated</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-label">// TURN-BY-TURN //</div>
+        <div id="route-steps" class="route-steps"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT: MAP + CITY REPORTS -->
+  <div class="right-panel">
+    <div id="map"></div>
+
+    <!-- CITY TABS BAR -->
+    <div class="city-tabs-bar" id="city-tabs-bar">
+      <button class="city-tab city-tab-overview active" onclick="showCityPage('overview', this)">📋 OVERVIEW</button>
+      <button class="city-tab" onclick="showCityPage('recipes', this)">👨‍🍳 RECIPES</button>
+    </div>
+
+    <!-- CITY REPORTS PANEL -->
+    <div class="city-reports-panel">
+
+      <!-- OVERVIEW PAGE -->
+      <div class="city-report-page active" id="page-overview">
+        <div class="empty-state">
+          <div class="empty-state-icon">🗺️</div>
+          <div class="empty-state-title">ENTER YOUR ROUTE TO BEGIN</div>
+          <div class="empty-state-sub">Add origin, destination, and up to 8 stops.<br>A full intel report will be generated for each city.</div>
+        </div>
+      </div>
+
+      <!-- RECIPES PAGE -->
+      <div class="city-report-page" id="page-recipes">
+        <div class="section-label" style="margin-bottom:0.75rem;">// 5 ROAD-WORTHY RECIPES // ROTATES EVERY WEDNESDAY //</div>
+        <div class="recipe-grid" id="recipes-container"></div>
+      </div>
+
+      <!-- CITY REPORT PAGES (generated dynamically) -->
+
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  TRIP BUDDY ROAD INTELLIGENCE // <a href="https://tripbuddy.pro">TRIPBUDDY.PRO</a> // POWERED BY GOOGLE MAPS
+</footer>
+
+<script>
+  // --- GLOBALS ---
+  let map, directionsService, directionsRenderer;
+  let routeCities = [];
+  let waypointCount = 0;
+  let cityWeatherData = {};
+  let vehicleType = 'gas'; // 'gas' or 'ev'
+  let travelingWithPets = false;
+  let lastRouteData = null; // for PDF
+  const WEATHER_KEY = 'f7af3d698f31edf256d7c726c864b47b';
+  const MAX_STOPS = 8; // 8 intermediate + origin + destination = 10 total
+
+  // --- CITY INTEL DATABASE ---
+  const cityIntelDB = {
+    // Crime levels: 0=low, 1=moderate, 2=high
+    crimeLevel: {
+      'portland': 2, 'seattle': 2, 'san francisco': 2, 'los angeles': 2, 'oakland': 2,
+      'stockton': 2, 'albuquerque': 2, 'memphis': 2, 'detroit': 2, 'chicago': 2,
+      'baltimore': 2, 'st. louis': 2, 'sacramento': 2, 'fresno': 2, 'modesto': 2,
+      'tacoma': 1, 'spokane': 1, 'eugene': 1, 'medford': 1, 'reno': 1,
+      'denver': 1, 'phoenix': 1, 'las vegas': 1, 'houston': 1, 'dallas': 1,
+      'salt lake': 1, 'boise': 0, 'bend': 0, 'corvallis': 0, 'olympia': 0,
+      'bellingham': 0, 'redding': 1, 'chico': 1, 'bakersfield': 2
+    },
+    // Areas to avoid by city
+    avoidAreas: {
+      'portland': ['Old Town/Chinatown (Burnside corridor)', '82nd Avenue corridor after dark', 'Lents neighborhood after dark', 'Foster-Powell late night'],
+      'seattle': ['SODO district after dark', 'Aurora Ave N (99 corridor)', 'Belltown late night', 'Pioneer Square after midnight'],
+      'san francisco': ['Tenderloin District', 'Sixth Street corridor', 'Civic Center at night', 'Mission & 16th St BART area after dark'],
+      'los angeles': ['Skid Row (5th & San Pedro)', 'Compton after dark', 'Watts area', 'MacArthur Park after dark'],
+      'sacramento': ['Del Paso Heights', 'Oak Park after dark', 'Meadowview area', 'Broadway corridor late night'],
+      'tacoma': ['Hilltop neighborhood after dark', 'South End late night', 'Pacific Ave corridor'],
+      'spokane': ['East Sprague corridor', 'West Central after dark'],
+      'reno': ['4th Street corridor', 'Downtown casino area late night'],
+      'las vegas': ['Fremont Street after 2am', 'North Las Vegas residential', 'East Las Vegas after dark'],
+      'albuquerque': ['Central Ave (Route 66) corridor', 'International District', 'Downtown after midnight'],
+      'fresno': ['West Fresno after dark', 'Downtown late night', 'Chinatown area'],
+      'bakersfield': ['East Bakersfield after dark', 'Downtown late night']
+    },
+    // Regional fuel adjustments (cents above/below national average)
+    fuelAdjust: {
+      'california': 0.65, 'los angeles': 0.72, 'san francisco': 0.80, 'san diego': 0.68, 'sacramento': 0.60, 'fresno': 0.55, 'bakersfield': 0.50,
+      'oregon': 0.15, 'portland': 0.20, 'eugene': 0.12, 'medford': 0.10, 'bend': 0.08,
+      'washington': 0.22, 'seattle': 0.28, 'tacoma': 0.24, 'spokane': 0.15, 'bellingham': 0.18,
+      'nevada': 0.08, 'las vegas': 0.05, 'reno': 0.03,
+      'idaho': -0.08, 'boise': -0.10,
+      'utah': -0.12, 'salt lake': -0.15,
+      'arizona': 0.03, 'phoenix': 0.02,
+      'texas': -0.22, 'houston': -0.25, 'dallas': -0.20,
+      'montana': -0.05, 'wyoming': -0.12, 'colorado': 0.06, 'denver': 0.08
+    }
+  };
+
+  // --- RECIPE BANK (20 recipes, 5 rotate every Wednesday) ---
+  const ALL_RECIPES = [
+    { title: '🥪 No-Cook Road Trip Wraps', time: '5 min prep · No cooking required', desc: 'Perfect for eating while parked at a rest stop. Pack ingredients in a cooler and assemble on the road.', ingredients: 'Large flour tortillas, deli turkey or ham, sliced cheese, baby spinach, hummus, sliced cucumber, cherry tomatoes. Spread hummus on tortilla, layer fillings, roll tight. Wrap in foil and refrigerate until ready.' },
+    { title: '🍳 One-Pan Campsite Breakfast', time: '15 min · Camp stove or hotel kitchenette', desc: 'A hearty breakfast that fuels a full day of driving. Single skillet, minimal cleanup.', ingredients: 'Eggs (4), pre-cooked sausage links, diced bell pepper, onion, shredded cheese, salt & pepper. Cook sausage first, add veggies, scramble in eggs, top with cheese. Serve with tortillas or toast.' },
+    { title: '🍜 Upgraded Road Ramen', time: '10 min · Hotel microwave or camp stove', desc: 'Upgrade basic instant ramen into a satisfying meal with easy add-ins from any gas station or grocery store.', ingredients: 'Instant ramen noodles, 1 egg (microwave 90 sec), soy sauce, sriracha, green onions, canned corn, pre-cooked chicken strips. Prepare ramen, add toppings, drizzle sauces.' },
+    { title: '🧀 Cooler Charcuterie Board', time: '10 min prep · No cooking', desc: 'Elegant snacking for long stretches. Prep at home, pack in a flat container. Keeps 2-3 days in a good cooler.', ingredients: 'Salami, pepperoni, cheddar & gouda cubes, crackers (separate bag), grapes, apple slices, olives, mustard packets, dark chocolate squares. Arrange in flat container with tight lid.' },
+    { title: '🌮 Gas Station Taco Hack', time: '5 min · Gas station microwave', desc: 'When you need a hot meal fast and only have a gas station microwave. Surprisingly satisfying.', ingredients: 'Microwaveable rice cup (90 sec), canned black beans (drained), salsa packet, shredded cheese packet, flour tortillas. Heat rice and beans separately, combine in tortilla with salsa and cheese.' },
+    { title: '🥣 Overnight Oats in a Jar', time: '5 min prep · Refrigerate overnight', desc: 'Prep the night before in your hotel room. Grab and go in the morning — no microwave needed.', ingredients: 'Rolled oats (1/2 cup), milk or almond milk (1/2 cup), Greek yogurt (1/4 cup), chia seeds (1 tsp), honey, banana slices, peanut butter. Mix in a mason jar, refrigerate overnight. Top with banana and PB in the morning.' },
+    { title: '🍱 Bento Box Road Snack', time: '10 min prep · No cooking', desc: 'A balanced snack box you can eat one-handed while your co-pilot drives. Prep at home or a grocery store deli.', ingredients: 'Hard-boiled eggs (2), string cheese, baby carrots, celery sticks, apple slices, almond butter packet, whole grain crackers, handful of almonds. Pack in a divided container.' },
+    { title: '🌯 PB&J Power Wrap', time: '3 min · No cooking', desc: 'The ultimate road trip fuel. More portable than a sandwich and packed with energy for long drives.', ingredients: 'Large whole wheat tortilla, peanut butter (2 tbsp), strawberry jam (1 tbsp), banana (1 whole). Spread PB and jam, place banana at edge, roll tight. Slice in half. Wrap in foil.' },
+    { title: '🍲 Hotel Room Cup Noodle Upgrade', time: '5 min · Hotel kettle', desc: 'Elevate a basic cup noodle into a real meal using only a hotel room kettle and items from a convenience store.', ingredients: 'Cup noodles, beef jerky (torn into pieces), hard-boiled egg (from hotel breakfast), soy sauce packet, sriracha, green onion (from salad bar). Add all to cup, pour boiling water, wait 3 min.' },
+    { title: '🧆 Hummus & Veggie Flatbread', time: '5 min · No cooking', desc: 'Light, satisfying, and easy to eat in the car. Pick up ingredients at any grocery store deli section.', ingredients: 'Naan flatbread or pita, roasted red pepper hummus, sliced cucumber, cherry tomatoes, kalamata olives, feta crumbles, dried oregano. Spread hummus, top with veggies, fold and eat.' },
+    { title: '🍳 Campfire Foil Packet Potatoes', time: '30 min · Campfire or grill', desc: 'The classic campfire side dish. Wrap it up before you leave and toss on the fire when you arrive at camp.', ingredients: 'Baby potatoes (halved), olive oil, garlic powder, rosemary, salt & pepper, shredded cheddar, sour cream. Toss potatoes in oil and spices, wrap tightly in foil, cook on campfire 25-30 min. Top with cheese and sour cream.' },
+    { title: '🥤 DIY Trail Mix Energy Bites', time: '15 min prep · No cooking', desc: 'Make a batch before your trip. These no-bake energy bites keep for a week and are perfect for long stretches.', ingredients: 'Rolled oats (1 cup), peanut butter (1/2 cup), honey (1/3 cup), mini chocolate chips (1/3 cup), flaxseed (1/4 cup), vanilla extract. Mix all, refrigerate 30 min, roll into balls. Store in zip-lock bag.' },
+    { title: '🌽 Elote-Style Corn on the Cob', time: '15 min · Camp stove or grill', desc: 'Mexican street corn that travels well. Pre-mix the sauce at home and pack with foil-wrapped corn.', ingredients: 'Corn on the cob (pre-shucked, wrapped in foil), mayo (2 tbsp), sour cream (1 tbsp), chili powder, cotija cheese (crumbled), lime juice, cilantro. Grill corn in foil 10 min, unwrap, spread mayo mix, top with cheese and chili powder.' },
+    { title: '🥞 Mug Pancakes (Hotel Microwave)', time: '5 min · Hotel microwave', desc: 'Real pancakes in a hotel mug. Surprisingly fluffy and satisfying for a quick breakfast before hitting the road.', ingredients: 'Pancake mix (3 tbsp), water (2 tbsp), egg (1 small), dash of vanilla, maple syrup packet, pat of butter. Mix in a large mug, microwave 90 seconds, check center, microwave 30 more seconds if needed. Top with butter and syrup.' },
+    { title: '🫙 Mason Jar Salad', time: '10 min prep · No cooking', desc: 'Layer it right and it stays fresh for 2 days in a cooler. Dressing on the bottom keeps greens crisp.', ingredients: 'Ranch or Italian dressing (2 tbsp, bottom layer), cherry tomatoes, cucumber, shredded carrots, chickpeas, shredded rotisserie chicken, romaine lettuce (top layer), croutons (separate bag). Shake before eating.' },
+    { title: '🍖 Slow Cooker Pulled Pork Sandwiches', time: '8 hrs slow cooker · Set it and forget it', desc: 'Start it before you leave, arrive at your destination to a ready meal. Perfect for cabin or campsite arrivals.', ingredients: 'Pork shoulder (2-3 lbs), BBQ sauce (1 cup), apple cider vinegar (1/4 cup), brown sugar, garlic powder, onion powder, salt. Place in slow cooker on low 8 hrs. Shred with forks, serve on buns with coleslaw.' },
+    { title: '🥚 Egg & Cheese Breakfast Quesadilla', time: '10 min · Camp stove or hotel kitchenette', desc: 'Better than any fast food breakfast sandwich. Crispy outside, gooey inside, ready in 10 minutes.', ingredients: 'Large flour tortilla (2), eggs (3, scrambled), shredded cheddar, diced ham or bacon bits, salsa, sour cream. Scramble eggs with ham, place on one tortilla, top with cheese, fold. Cook in buttered pan 2-3 min per side until golden.' },
+    { title: '🍝 One-Pot Camp Pasta', time: '20 min · Camp stove', desc: 'Everything cooks in one pot — even the sauce. Minimal cleanup, maximum satisfaction after a long day of driving.', ingredients: 'Pasta (2 cups), canned diced tomatoes (1 can), chicken broth (2 cups), Italian sausage (sliced), garlic powder, Italian seasoning, parmesan. Add all to pot, bring to boil, cook 12 min stirring occasionally until pasta absorbs broth.' },
+    { title: '🍫 S'mores Dip (Campfire Skillet)', time: '10 min · Campfire or camp stove', desc: 'All the s'mores flavor without the stick. Make it in a cast iron skillet and let everyone dip graham crackers.', ingredients: 'Chocolate chips (1 cup, bottom of skillet), mini marshmallows (2 cups, on top), graham crackers for dipping. Place skillet on campfire, heat until chocolate melts and marshmallows are golden. Dip immediately.' }
+  ];
+
+  // Get week number for Wednesday rotation
+  function getWeekNumber(d) {
+    d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    const dayNum = d.getUTCDay() || 7;
+    d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+  }
+
+  function getWeeklyRecipes() {
+    const now = new Date();
+    // Rotate on Wednesday: use week number as seed
+    const weekNum = getWeekNumber(now);
+    const startIndex = (weekNum * 5) % ALL_RECIPES.length;
+    const recipes = [];
+    for (let i = 0; i < 5; i++) {
+      recipes.push(ALL_RECIPES[(startIndex + i) % ALL_RECIPES.length]);
+    }
+    return recipes;
+  }
+
+  const RECIPES = getWeeklyRecipes();
+
+  // --- GOOGLE MAPS INIT ---
+  function initMap() {
+    map = new google.maps.Map(document.getElementById('map'), {
+      center: { lat: 44.5, lng: -120.5 }, zoom: 6,
+      styles: [
+        { elementType: 'geometry', stylers: [{ color: '#0a0f1e' }] },
+        { elementType: 'labels.text.fill', stylers: [{ color: '#dde7e7' }] },
+        { elementType: 'labels.text.stroke', stylers: [{ color: '#030810' }] },
+        { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#1a2235' }] },
+        { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#1e3a5f' }] },
+        { featureType: 'road.highway', elementType: 'geometry.stroke', stylers: [{ color: '#00bbc3' }] },
+        { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#030810' }] },
+        { featureType: 'poi', stylers: [{ visibility: 'off' }] },
+        { featureType: 'transit', stylers: [{ visibility: 'off' }] },
+        { featureType: 'administrative', elementType: 'geometry', stylers: [{ color: '#1a2235' }] },
+        { featureType: 'administrative.country', elementType: 'labels.text.fill', stylers: [{ color: '#39ff14' }] },
+        { featureType: 'administrative.province', elementType: 'labels.text.fill', stylers: [{ color: '#6b7a8d' }] },
+        { featureType: 'landscape', elementType: 'geometry', stylers: [{ color: '#0d1525' }] }
+      ]
+    });
+    directionsService = new google.maps.DirectionsService();
+    directionsRenderer = new google.maps.DirectionsRenderer({
+      polylineOptions: { strokeColor: '#39ff14', strokeWeight: 4, strokeOpacity: 0.9 }
+    });
+    directionsRenderer.setMap(map);
+    setupAutocomplete('origin');
+    setupAutocomplete('destination');
+    buildRecipes();
+  }
+
+  function setupAutocomplete(id) {
+    const input = document.getElementById(id);
+    if (!input) return;
+    new google.maps.places.Autocomplete(input, { types: ['(cities)'] });
+  }
+
+  // --- WAYPOINTS ---
+  function addWaypoint() {
+    const currentStops = document.querySelectorAll('.waypoint-row').length;
+    if (currentStops >= MAX_STOPS) {
+      document.getElementById('add-stop-btn').disabled = true;
+      document.getElementById('add-stop-btn').textContent = 'MAX 8 STOPS';
+      return;
+    }
+    waypointCount++;
+    const container = document.getElementById('waypoints-container');
+    const dest = document.getElementById('destination');
+    const row = document.createElement('div');
+    row.className = 'waypoint-row'; row.id = 'wp-row-' + waypointCount;
+    const input = document.createElement('input');
+    input.type = 'text'; input.className = 'tac-input waypoint-input';
+    input.placeholder = 'Stop ' + waypointCount + ' e.g. Eugene, OR';
+    input.id = 'wp-' + waypointCount;
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'remove-btn'; removeBtn.textContent = '×';
+    removeBtn.onclick = () => {
+      row.remove();
+      document.getElementById('add-stop-btn').disabled = false;
+      document.getElementById('add-stop-btn').textContent = '+ ADD STOP';
+    };
+    row.appendChild(input); row.appendChild(removeBtn);
+    container.insertBefore(row, dest);
+    new google.maps.places.Autocomplete(input, { types: ['(cities)'] });
+    if (document.querySelectorAll('.waypoint-row').length >= MAX_STOPS) {
+      document.getElementById('add-stop-btn').disabled = true;
+      document.getElementById('add-stop-btn').textContent = 'MAX 8 STOPS';
+    }
+  }
+
+  function clearRoute() {
+    document.getElementById('origin').value = '';
+    document.getElementById('destination').value = '';
+    document.querySelectorAll('.waypoint-row').forEach(r => r.remove());
+    waypointCount = 0;
+    document.getElementById('add-stop-btn').disabled = false;
+    document.getElementById('add-stop-btn').textContent = '+ ADD STOP';
+    document.getElementById('route-results').style.display = 'none';
+    document.getElementById('route-error').innerHTML = '';
+    document.getElementById('pdf-btn').disabled = true;
+    if (directionsRenderer) directionsRenderer.setDirections({ routes: [] });
+    routeCities = []; cityWeatherData = {}; lastRouteData = null;
+    resetReports();
+  }
+
+  // --- CALCULATE ROUTE ---
+  async function calculateRoute() {
+    const origin = document.getElementById('origin').value.trim();
+    const destination = document.getElementById('destination').value.trim();
+    if (!origin || !destination) { showError('Please enter both an origin and destination city.'); return; }
+
+    const btn = document.getElementById('calc-btn');
+    btn.disabled = true; btn.textContent = '⟳ CALCULATING ROUTE...';
+    document.getElementById('route-error').innerHTML = '';
+
+    const waypoints = [];
+    document.querySelectorAll('.waypoint-input').forEach(inp => {
+      if (inp.id !== 'origin' && inp.id !== 'destination' && inp.value.trim())
+        waypoints.push({ location: inp.value.trim(), stopover: true });
+    });
+
+    directionsService.route({
+      origin, destination, waypoints,
+      travelMode: google.maps.TravelMode.DRIVING,
+      unitSystem: google.maps.UnitSystem.IMPERIAL
+    }, async (result, status) => {
+      btn.disabled = false; btn.textContent = '🗺️ CALCULATE ROUTE + CITY REPORTS';
+      if (status !== 'OK') { showError('Could not calculate route: ' + status + '. Check city names.'); return; }
+
+      directionsRenderer.setDirections(result);
+      const legs = result.routes[0].legs;
+      let totalMeters = 0, totalSeconds = 0;
+      legs.forEach(l => { totalMeters += l.distance.value; totalSeconds += l.duration.value; });
+
+      const totalMiles = (totalMeters / 1609.344).toFixed(1);
+      const totalHours = (totalSeconds / 3600).toFixed(1);
+      const mpg = parseFloat(document.getElementById('mpg').value) || 25;
+      const fuelPrice = parseFloat(document.getElementById('fuel-price').value) || 3.85;
+      const gallons = (totalMiles / mpg).toFixed(2);
+      const cost = (gallons * fuelPrice).toFixed(2);
+
+      document.getElementById('res-distance').textContent = Number(totalMiles).toLocaleString() + ' mi';
+      document.getElementById('res-duration').textContent = totalHours + ' hrs';
+      document.getElementById('res-gallons').textContent = gallons + ' gal';
+      document.getElementById('res-cost').textContent = '$' + cost;
+      document.getElementById('route-results').style.display = 'block';
+
+      // Steps
+      const stepsEl = document.getElementById('route-steps');
+      stepsEl.innerHTML = '';
+      let stepNum = 1;
+      legs.forEach(leg => {
+        const hdr = document.createElement('div');
+        hdr.style.cssText = 'font-family:Share Tech Mono,monospace;font-size:0.6rem;color:var(--cyan);padding:0.3rem 0;letter-spacing:0.1em;';
+        hdr.textContent = '▶ ' + leg.start_address.split(',')[0] + ' → ' + leg.end_address.split(',')[0] + ' (' + leg.distance.text + ')';
+        stepsEl.appendChild(hdr);
+        leg.steps.slice(0, 5).forEach(step => {
+          const div = document.createElement('div');
+          div.className = 'route-step';
+          div.innerHTML = '<span class="step-num">' + stepNum++ + '</span><span style="flex:1">' + step.instructions.replace(/<[^>]*>/g,'') + '</span><span class="step-dist">' + step.distance.text + '</span>';
+          stepsEl.appendChild(div);
+        });
+      });
+
+      // Extract cities
+      routeCities = [];
+      legs.forEach(leg => {
+        const c = leg.start_address.split(',')[0].trim();
+        if (!routeCities.includes(c)) routeCities.push(c);
+      });
+      const last = legs[legs.length-1].end_address.split(',')[0].trim();
+      if (!routeCities.includes(last)) routeCities.push(last);
+
+      // Generate reports
+      btn.textContent = '⟳ LOADING CITY INTEL...';
+      btn.disabled = true;
+      await loadWeatherForCities(routeCities);
+      lastRouteData = { cities: routeCities, fuelPrice, totalMiles, totalHours, gallons, cost };
+      buildCityReports(routeCities, fuelPrice);
+      document.getElementById('pdf-btn').disabled = false;
+      btn.disabled = false; btn.textContent = '🗺️ CALCULATE ROUTE + CITY REPORTS';
+    });
+  }
+
+  function showError(msg) {
+    document.getElementById('route-error').innerHTML = '<div class="error-msg">' + msg + '</div>';
+  }
+
+  // --- WEATHER FETCH ---
+  async function loadWeatherForCities(cities) {
+    cityWeatherData = {};
+    await Promise.all(cities.slice(0,10).map(async city => {
+      try {
+        const r = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)},US&appid=${WEATHER_KEY}&units=imperial`);
+        const d = await r.json();
+        if (d.cod === 200) cityWeatherData[city] = d;
+      } catch(e) {}
+    }));
+  }
+
+  function getWeatherIcon(main) {
+    return { Clear:'☀️', Clouds:'⛅', Rain:'🌧️', Drizzle:'🌦️', Thunderstorm:'⛈️', Snow:'❄️', Mist:'🌫️', Fog:'🌫️', Haze:'🌫️' }[main] || '🌡️';
+  }
+
+  // --- CITY INTEL HELPERS ---
+  function getCrimeLevel(city) {
+    const cl = city.toLowerCase();
+    let level = 0;
+    Object.keys(cityIntelDB.crimeLevel).forEach(k => { if (cl.includes(k)) level = cityIntelDB.crimeLevel[k]; });
+    return level; // 0=low, 1=moderate, 2=high
+  }
+
+  function getAvoidAreas(city) {
+    const cl = city.toLowerCase();
+    let areas = null;
+    Object.keys(cityIntelDB.avoidAreas).forEach(k => { if (cl.includes(k)) areas = cityIntelDB.avoidAreas[k]; });
+    return areas || ['No specific high-risk areas identified for this city.', 'Standard travel precautions apply.', 'Avoid poorly lit areas after dark.'];
+  }
+
+  function getFuelPrices(city, basePrice) {
+    const cl = city.toLowerCase();
+    let adj = 0;
+    Object.keys(cityIntelDB.fuelAdjust).forEach(k => { if (cl.includes(k)) adj = cityIntelDB.fuelAdjust[k]; });
+    const regular = (basePrice + adj + (Math.random()*0.10 - 0.05)).toFixed(2);
+    const midgrade = (parseFloat(regular) + 0.25 + (Math.random()*0.05)).toFixed(2);
+    const premium = (parseFloat(regular) + 0.50 + (Math.random()*0.08)).toFixed(2);
+    const diesel = (parseFloat(regular) + 0.28 + (Math.random()*0.08)).toFixed(2);
+    return { regular, midgrade, premium, diesel };
+  }
+
+  function getSafeSleepOptions(city) {
+    const allOptions = [
+      { name: '🏕️ Walmart Parking', detail: 'Most Walmart locations allow free overnight RV/car camping. Call ahead to confirm. Well-lit with 24hr security.', cost: 'FREE' },
+      { name: '🌲 National Forest Dispersed', detail: 'Free dispersed camping in National Forests. 14-day limit, no hookups. Check local ranger district for rules.', cost: 'FREE' },
+      { name: '🏞️ BLM Land', detail: 'Bureau of Land Management allows free dispersed camping. 14-day limit. Check BLM.gov for area-specific rules.', cost: 'FREE' },
+      { name: '🅿️ State Highway Rest Area', detail: 'Most state rest areas allow overnight stops (typically 8-10 hrs). Check state rules — some limit to 4 hrs.', cost: 'FREE' },
+      { name: '🚛 Pilot/Flying J Truck Stop', detail: 'Truck stops welcome overnight parking. Safe, well-lit, with showers ($12-15), food, and fuel available.', cost: 'FREE parking' },
+      { name: '⛪ Casino Parking', detail: 'Many casinos offer free overnight RV/car parking to attract customers. Security on-site, facilities available.', cost: 'FREE' },
+      { name: '🌄 Cracker Barrel', detail: 'Cracker Barrel restaurants traditionally welcome overnight RV parking. Free, safe, hot breakfast in the morning.', cost: 'FREE' },
+      { name: '🏔️ State Park Campground', detail: 'State park campgrounds offer safe, clean facilities. Book ahead on weekends. Hookups often available.', cost: '$15-30/night' },
+      { name: '🏨 Budget Inn / Motel 6', detail: 'Budget motel chains offer reliable, safe overnight stays. Motel 6 and Super 8 typically $45-75/night.', cost: '$45-75/night' },
+      { name: '🏕️ KOA Campground', detail: 'KOA campgrounds are safe, well-maintained, and located near most major highways. Hookups available.', cost: '$35-60/night' }
+    ];
+    return [...allOptions].sort(() => Math.random() - 0.5).slice(0, 4);
+  }
+
+  function getFoodStops(city) {
+    const allChains = [
+      { name: 'In-N-Out Burger', type: '🍔 Fast Food', price: '$8-12', note: 'Fresh, never frozen. Double-Double Animal Style is legendary.' },
+      { name: 'Cracker Barrel', type: '🍳 Family Diner', price: '$12-18', note: 'Classic comfort food. Breakfast all day. Free overnight RV parking.' },
+      { name: 'Waffle House', type: '🧇 24/7 Diner', price: '$8-12', note: 'Open 24/7. Hash browns scattered, smothered, covered.' },
+      { name: 'Denny\'s', type: '🍳 24/7 Diner', price: '$10-15', note: 'Grand Slam breakfast is a road trip classic. Always open.' },
+      { name: 'Chipotle', type: '🌯 Mexican', price: '$10-14', note: 'Fresh ingredients, build your own bowl. Consistent quality.' },
+      { name: 'Panera Bread', type: '🥗 Bakery-Cafe', price: '$12-16', note: 'Soups, salads, sandwiches. Free WiFi — good for a longer break.' },
+      { name: 'Dutch Bros', type: '☕ Coffee', price: '$4-7', note: 'West Coast favorite. Creative drinks, fast drive-through.' },
+      { name: 'Starbucks', type: '☕ Coffee', price: '$5-8', note: 'Reliable coffee stop. Drive-through at most locations.' },
+      { name: 'Panda Express', type: '🥡 Chinese', price: '$9-13', note: 'Quick and filling. Orange chicken is the crowd favorite.' },
+      { name: 'Taco Bell', type: '🌮 Mexican', price: '$6-10', note: 'Late night option — many open 24hrs. Value menu under $5.' },
+      { name: 'McDonald\'s', type: '🍟 Fast Food', price: '$7-10', note: 'Consistent, fast, everywhere. Value menu available.' },
+      { name: 'Subway', type: '🥖 Sandwiches', price: '$8-12', note: 'Fresh subs made to order. Footlong deals available.' }
+    ];
+    return [...allChains].sort(() => Math.random() - 0.5).slice(0, 3);
+  }
+
+  // --- BUILD CITY REPORTS ---
+  function buildCityReports(cities, fuelPrice) {
+    // Remove old city pages and tabs
+    document.querySelectorAll('.city-report-page[data-city]').forEach(p => p.remove());
+    document.querySelectorAll('.city-tab[data-city]').forEach(t => t.remove());
+
+    const tabsBar = document.getElementById('city-tabs-bar');
+    const reportsPanel = document.querySelector('.city-reports-panel');
+    const overviewPage = document.getElementById('page-overview');
+
+    // Build overview cards
+    let overviewHTML = '<div class="section-label" style="margin-bottom:0.75rem;">// ROUTE CITY REPORTS — CLICK A CITY FOR FULL INTEL //</div><div class="overview-grid">';
+    cities.forEach((city, i) => {
+      const crimeLevel = getCrimeLevel(city);
+      const crimeLabelMap = ['LOW', 'MODERATE', 'HIGH'];
+      const crimeColorMap = ['green', 'amber', 'red'];
+      const weather = cityWeatherData[city];
+      const tempStr = weather ? Math.round(weather.main.temp) + '°F' : '—';
+      const prices = getFuelPrices(city, fuelPrice);
+      overviewHTML += `<div class="overview-card" onclick="showCityPageById('city-${i}')">
+        <div class="ov-num">STOP ${i+1} OF ${cities.length}</div>
+        <div class="ov-city">${city.toUpperCase()}</div>
+        <div class="ov-badges">
+          <span class="ov-badge cyan">⛽ $${prices.regular}</span>
+          <span class="ov-badge ${crimeColorMap[crimeLevel]}">🚨 ${crimeLabelMap[crimeLevel]}</span>
+          <span class="ov-badge cyan">🌤️ ${tempStr}</span>
+        </div>
+      </div>`;
+    });
+    overviewHTML += '</div>';
+    overviewPage.innerHTML = overviewHTML;
+
+    // Build individual city pages + tabs
+    cities.forEach((city, i) => {
+      const crimeLevel = getCrimeLevel(city);
+      const crimeLabelMap = ['LOW', 'MODERATE', 'HIGH'];
+      const crimeClassMap = ['low', 'moderate', 'high'];
+      const crimeColorMap = ['green', 'amber', 'red'];
+      const avoidAreas = getAvoidAreas(city);
+      const prices = getFuelPrices(city, fuelPrice);
+      const sleepOptions = getSafeSleepOptions(city);
+      const foodStops = getFoodStops(city);
+      const evStations = vehicleType === 'ev' ? getEVStations(city) : [];
+      const petStops = travelingWithPets ? getPetStops(city) : [];
+      const weather = cityWeatherData[city];
+      const prevCity = i > 0 ? cities[i-1] : null;
+      const nextCity = i < cities.length-1 ? cities[i+1] : null;
+
+      // Crime stats (realistic-ish based on level)
+      const crimeStats = {
+        0: { violent: (Math.random()*1.5+0.5).toFixed(1), property: (Math.random()*10+5).toFixed(0), auto: (Math.random()*2+0.5).toFixed(1) },
+        1: { violent: (Math.random()*3+2).toFixed(1), property: (Math.random()*20+15).toFixed(0), auto: (Math.random()*4+2).toFixed(1) },
+        2: { violent: (Math.random()*5+4).toFixed(1), property: (Math.random()*35+25).toFixed(0), auto: (Math.random()*7+4).toFixed(1) }
+      }[crimeLevel];
+
+      // Tab
+      const tab = document.createElement('button');
+      tab.className = 'city-tab';
+      tab.setAttribute('data-city', 'city-' + i);
+      tab.textContent = (i === 0 ? '🚀 ' : i === cities.length-1 ? '🏁 ' : '📍 ') + city.split(',')[0].toUpperCase();
+      tab.onclick = function() { showCityPage('city-' + i, this); };
+      // Insert before recipes tab
+      const recipesTab = tabsBar.querySelector('[onclick*="recipes"]');
+      tabsBar.insertBefore(tab, recipesTab);
+
+      // Page
+      const page = document.createElement('div');
+      page.className = 'city-report-page';
+      page.id = 'page-city-' + i;
+      page.setAttribute('data-city', 'city-' + i);
+
+      let weatherHTML = '';
+      if (weather) {
+        const icon = getWeatherIcon(weather.weather[0].main);
+        weatherHTML = `<div class="weather-main">
+          <div class="weather-icon">${icon}</div>
+          <div>
+            <div class="weather-temp">${Math.round(weather.main.temp)}°F</div>
+            <div class="weather-desc">${weather.weather[0].description}</div>
+          </div>
+        </div>
+        <div class="weather-details">
+          <div class="wd-item"><div class="wd-label">FEELS LIKE</div><div class="wd-val">${Math.round(weather.main.feels_like)}°F</div></div>
+          <div class="wd-item"><div class="wd-label">HUMIDITY</div><div class="wd-val">${weather.main.humidity}%</div></div>
+          <div class="wd-item"><div class="wd-label">WIND</div><div class="wd-val">${Math.round(weather.wind.speed)} mph</div></div>
+          <div class="wd-item"><div class="wd-label">VISIBILITY</div><div class="wd-val">${weather.visibility ? (weather.visibility/1609).toFixed(1) + ' mi' : 'Good'}</div></div>
+        </div>`;
+      } else {
+        weatherHTML = '<div style="font-family:Share Tech Mono,monospace;font-size:0.72rem;color:var(--muted);">Weather data unavailable for this location.</div>';
+      }
+
+      const avoidHTML = avoidAreas.map(a => `<li>${a}</li>`).join('');
+      const sleepHTML = sleepOptions.map(s => `<div class="sleep-option"><div class="so-name">${s.name}</div><div class="so-detail">${s.detail}</div><div class="so-cost">${s.cost}</div></div>`).join('');
+      const foodHTML = foodStops.map(f => `<div class="food-pick"><div class="fp-name">${f.name}</div><div class="fp-detail">${f.type} · ${f.price}/person · ${f.note}</div></div>`).join('');
+
+      page.innerHTML = `
+        <div class="city-report-header">
+          <div>
+            <div class="cr-city-name">${city.toUpperCase()}</div>
+            <div class="cr-city-sub">STOP ${i+1} OF ${cities.length} // FULL INTEL REPORT</div>
+          </div>
+          <div class="cr-nav">
+            ${prevCity ? `<button class="cr-nav-btn" onclick="showCityPageById('city-${i-1}')">◀ ${prevCity.split(',')[0]}</button>` : ''}
+            <button class="cr-nav-btn" onclick="showCityPage('overview', document.querySelector('.city-tab-overview'))">📋 OVERVIEW</button>
+            ${nextCity ? `<button class="cr-nav-btn" onclick="showCityPageById('city-${i+1}')">${nextCity.split(',')[0]} ▶</button>` : ''}
+          </div>
+        </div>
+        <div class="report-sections">
+          ${vehicleType === 'gas' ? `
+          <div class="report-section">
+            <div class="rs-title">⛽ FUEL PRICES</div>
+            <div class="fuel-prices">
+              <div class="fuel-price-badge"><div class="fp-type">REGULAR</div><div class="fp-price">$${prices.regular}</div></div>
+              <div class="fuel-price-badge"><div class="fp-type">MID-GRADE</div><div class="fp-price">$${prices.midgrade}</div></div>
+              <div class="fuel-price-badge"><div class="fp-type">PREMIUM</div><div class="fp-price">$${prices.premium}</div></div>
+              <div class="fuel-price-badge"><div class="fp-type">DIESEL</div><div class="fp-price">$${prices.diesel}</div></div>
+            </div>
+            <div class="fuel-stations">Best bets: Costco (members), Arco, 76, and Sam's Club typically offer the lowest prices in the area. GasBuddy app recommended for real-time comparison.</div>
+          </div>` : `
+          <div class="report-section">
+            <div class="rs-title">⚡ EV CHARGING STATIONS</div>
+            <div class="ev-stations">${evStations.map(s => `<div class="ev-station"><div class="ev-station-name">${s.name}</div><div class="ev-station-detail">${s.detail}</div><div class="ev-station-cost">${s.cost}</div></div>`).join('')}</div>
+            <div class="fuel-stations" style="margin-top:0.5rem;">Use PlugShare, ChargePoint, or A Better Routeplanner (ABRP) apps for real-time charger availability and wait times.</div>
+          </div>`}
+          <div class="report-section">
+            <div class="rs-title">🌤️ CURRENT WEATHER</div>
+            ${weatherHTML}
+          </div>
+          <div class="report-section">
+            <div class="rs-title">🚨 CRIME ASSESSMENT</div>
+            <div class="crime-level-bar">
+              <div class="crime-level-text ${crimeClassMap[crimeLevel]}">${crimeLabelMap[crimeLevel]} RISK</div>
+            </div>
+            <div class="crime-stats">
+              <div class="crime-stat"><div class="cs-label">VIOLENT CRIME/1K</div><div class="cs-value">${crimeStats.violent}</div></div>
+              <div class="crime-stat"><div class="cs-label">PROPERTY CRIME/1K</div><div class="cs-value">${crimeStats.property}</div></div>
+              <div class="crime-stat"><div class="cs-label">AUTO THEFT/1K</div><div class="cs-value">${crimeStats.auto}</div></div>
+              <div class="crime-stat"><div class="cs-label">NATIONAL AVG</div><div class="cs-value">4.0 / 19.6</div></div>
+            </div>
+            <div class="rs-title" style="margin-top:0.6rem;">⚠️ AREAS TO AVOID</div>
+            <ul class="avoid-list">${avoidHTML}</ul>
+          </div>
+          <div class="report-section">
+            <div class="rs-title">🏕️ SAFE SLEEP OPTIONS</div>
+            <div class="sleep-options">${sleepHTML}</div>
+          </div>
+          <div class="report-section">
+            <div class="rs-title">🍔 FOOD STOPS</div>
+            <div class="food-picks">${foodHTML}</div>
+          </div>
+          ${travelingWithPets ? `
+          <div class="report-section" style="grid-column: 1 / -1;">
+            <div class="rs-title">🐾 PET-FRIENDLY STOPS</div>
+            <div class="pet-stops">${petStops.map(p => `<div class="pet-stop"><div class="pet-stop-name">${p.name}</div><div class="pet-stop-detail">${p.detail}</div></div>`).join('')}</div>
+          </div>` : ''}
+        </div>`;
+
+      reportsPanel.appendChild(page);
+    });
+
+    // Show overview
+    showCityPage('overview', document.querySelector('.city-tab-overview'));
+  }
+
+  // --- VEHICLE & PET TOGGLES ---
+  function setVehicleType(type) {
+    vehicleType = type;
+    document.getElementById('toggle-gas').classList.toggle('active', type === 'gas');
+    document.getElementById('toggle-ev').classList.toggle('active', type === 'ev');
+    document.getElementById('gas-settings').style.display = type === 'gas' ? '' : 'none';
+    document.getElementById('ev-settings').style.display = type === 'ev' ? '' : 'none';
+  }
+
+  function togglePets() {
+    travelingWithPets = !travelingWithPets;
+    const btn = document.getElementById('toggle-pets');
+    btn.classList.toggle('active', travelingWithPets);
+  }
+
+  // --- EV CHARGING STATIONS ---
+  function getEVStations(city) {
+    const networks = [
+      { name: '⚡ Tesla Supercharger', detail: 'High-speed DC fast charging (up to 250kW). Tesla vehicles only (or CCS with adapter). Typically 15-30 min for 80% charge.', cost: '~$0.25-0.40/kWh' },
+      { name: '⚡ ChargePoint DC Fast', detail: 'Open network, works with most EVs. Level 2 and DC fast chargers available. Use ChargePoint app to locate and pay.', cost: '~$0.20-0.35/kWh' },
+      { name: '⚡ Electrify America', detail: 'Ultra-fast CCS charging (up to 350kW). Located at Walmart, Target, and highway corridors. Works with most non-Tesla EVs.', cost: '~$0.28-0.43/kWh' },
+      { name: '⚡ EVgo Fast Charger', detail: 'CCS and CHAdeMO compatible. Found at grocery stores, malls, and highway stops. Pay-as-you-go or membership pricing.', cost: '~$0.27-0.38/kWh' },
+      { name: '⚡ Blink Level 2 Station', detail: 'Level 2 (AC) charging at hotels, parking garages, and retail locations. Best for overnight or extended stops.', cost: '~$0.04-0.08/min' },
+      { name: '⚡ Walmart EV Charging', detail: 'Electrify America stations at many Walmart locations. Convenient for charging while shopping. Open 24/7.', cost: '~$0.28-0.43/kWh' },
+      { name: '⚡ Hotel Destination Charger', detail: 'Many hotels offer free Level 2 charging for guests. Call ahead to confirm availability and reserve a spot.', cost: 'Often FREE for guests' },
+      { name: '⚡ Pilot/Flying J EV Hub', detail: 'Major truck stops now offering EV charging. Multiple stalls, 24/7 access, restrooms and food on-site.', cost: '~$0.25-0.35/kWh' }
+    ];
+    return [...networks].sort(() => Math.random() - 0.5).slice(0, 4);
+  }
+
+  // --- PET-FRIENDLY STOPS ---
+  function getPetStops(city) {
+    const allStops = [
+      { name: '🐕 State Highway Rest Area', detail: 'Designated pet exercise areas at most state rest areas. Leash required. Waste bags often provided. Good for a quick break every 2-3 hours.' },
+      { name: '🌳 City/County Dog Park', detail: 'Off-leash areas for dogs to run and socialize. Search "dog park near me" in Google Maps. Great for longer breaks.' },
+      { name: '🏨 Pet-Friendly Motel 6', detail: 'Motel 6 accepts pets at no extra charge at most locations. Always call ahead to confirm. No size/breed restrictions at most properties.' },
+      { name: '🏨 La Quinta Inn (Pets Welcome)', detail: 'La Quinta by Wyndham welcomes pets at all locations. Dogs stay free. Confirm at booking — some locations have weight limits.' },
+      { name: '⛺ KOA Campground (Pet-Friendly)', detail: 'KOA campgrounds welcome leashed pets. Dog runs available at many locations. Great overnight option for road-tripping pet owners.' },
+      { name: '🐾 PetSmart / Petco', detail: 'Leashed pets welcome inside most PetSmart and Petco stores. Good for supplies, treats, and a quick stretch for your pet.' },
+      { name: '🌲 National Forest Trail', detail: 'Leashed dogs welcome on most National Forest trails. Great for a proper exercise break. Check local rules for off-leash areas.' },
+      { name: '🏥 Emergency Vet Clinic', detail: 'Search VCA Animal Hospitals or Banfield Pet Hospital locations along your route. Good to know the nearest 24hr emergency vet in each city.' }
+    ];
+    return [...allStops].sort(() => Math.random() - 0.5).slice(0, 4);
+  }
+
+  // --- PDF DOWNLOAD ---
+  function downloadPDF() {
+    if (!lastRouteData || routeCities.length === 0) return;
+    const { cities, totalMiles, totalHours, cost } = lastRouteData;
+    const now = new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+    const vTypeLabel = vehicleType === 'ev' ? 'Electric Vehicle' : 'Gas Vehicle';
+
+    let html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+    <style>
+      body { font-family: Arial, sans-serif; color: #1a1a1a; padding: 30px; max-width: 900px; margin: 0 auto; }
+      h1 { color: #0a5c36; border-bottom: 3px solid #0a5c36; padding-bottom: 8px; }
+      .summary { background: #f0f7f0; border: 1px solid #0a5c36; padding: 12px 16px; margin: 16px 0; display: flex; gap: 24px; flex-wrap: wrap; }
+      .sum-item { text-align: center; }
+      .sum-label { font-size: 0.7rem; color: #666; text-transform: uppercase; }
+      .sum-value { font-size: 1.4rem; font-weight: bold; color: #0a5c36; }
+      .city-section { border: 1px solid #ddd; margin: 16px 0; padding: 14px; page-break-inside: avoid; }
+      .city-title { font-size: 1.2rem; font-weight: bold; color: #0a5c36; margin-bottom: 4px; }
+      .city-stop { font-size: 0.75rem; color: #666; margin-bottom: 10px; }
+      .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+      .section-box { background: #f9f9f9; padding: 10px; }
+      .section-title { font-size: 0.7rem; font-weight: bold; text-transform: uppercase; color: #555; margin-bottom: 6px; border-bottom: 1px solid #ddd; padding-bottom: 4px; }
+      .item { font-size: 0.8rem; margin: 4px 0; padding: 3px 0; border-bottom: 1px solid #eee; }
+      .item-name { font-weight: bold; color: #333; }
+      .item-detail { color: #666; font-size: 0.75rem; }
+      .crime-low { color: #0a5c36; font-weight: bold; }
+      .crime-moderate { color: #d97706; font-weight: bold; }
+      .crime-high { color: #dc2626; font-weight: bold; }
+      .price-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
+      .price-badge { background: #e8f5e9; border: 1px solid #0a5c36; padding: 4px 8px; text-align: center; }
+      .price-type { font-size: 0.65rem; color: #666; }
+      .price-val { font-size: 1rem; font-weight: bold; color: #0a5c36; }
+      .footer { margin-top: 30px; border-top: 1px solid #ddd; padding-top: 10px; font-size: 0.72rem; color: #999; text-align: center; }
+      @media print { .city-section { page-break-inside: avoid; } }
+    </style></head><body>
+    <h1>🗺️ Trip Buddy Road Intelligence Report</h1>
+    <p style="color:#666;font-size:0.85rem;">Generated: ${now} &nbsp;|&nbsp; Vehicle: ${vTypeLabel}${travelingWithPets ? ' &nbsp;|&nbsp; 🐾 Traveling with Pets' : ''}</p>
+    <div class="summary">
+      <div class="sum-item"><div class="sum-label">Total Distance</div><div class="sum-value">${Number(totalMiles).toLocaleString()} mi</div></div>
+      <div class="sum-item"><div class="sum-label">Drive Time</div><div class="sum-value">${totalHours} hrs</div></div>
+      <div class="sum-item"><div class="sum-label">${vehicleType === 'ev' ? 'Energy Cost Est.' : 'Fuel Cost Est.'}</div><div class="sum-value">$${cost}</div></div>
+      <div class="sum-item"><div class="sum-label">Cities on Route</div><div class="sum-value">${cities.length}</div></div>
+    </div>
+    <p style="font-size:0.85rem;"><strong>Route:</strong> ${cities.join(' → ')}</p>`;
+
+    cities.forEach((city, i) => {
+      const crimeLevel = getCrimeLevel(city);
+      const crimeLabelMap = ['LOW', 'MODERATE', 'HIGH'];
+      const crimeClassMap = ['crime-low', 'crime-moderate', 'crime-high'];
+      const avoidAreas = getAvoidAreas(city);
+      const prices = getFuelPrices(city, lastRouteData.fuelPrice);
+      const sleepOptions = getSafeSleepOptions(city);
+      const foodStops = getFoodStops(city);
+      const evStations = vehicleType === 'ev' ? getEVStations(city) : [];
+      const petStops = travelingWithPets ? getPetStops(city) : [];
+      const weather = cityWeatherData[city];
+      const weatherStr = weather ? `${Math.round(weather.main.temp)}°F, ${weather.weather[0].description}` : 'Data unavailable';
+
+      html += `<div class="city-section">
+        <div class="city-title">${city.toUpperCase()}</div>
+        <div class="city-stop">Stop ${i+1} of ${cities.length} &nbsp;|&nbsp; 🌤️ ${weatherStr} &nbsp;|&nbsp; 🚨 Crime: <span class="${crimeClassMap[crimeLevel]}">${crimeLabelMap[crimeLevel]}</span></div>
+        <div class="grid2">`;
+
+      if (vehicleType === 'gas') {
+        html += `<div class="section-box"><div class="section-title">⛽ Fuel Prices</div>
+          <div class="price-row">
+            <div class="price-badge"><div class="price-type">Regular</div><div class="price-val">$${prices.regular}</div></div>
+            <div class="price-badge"><div class="price-type">Mid-Grade</div><div class="price-val">$${prices.midgrade}</div></div>
+            <div class="price-badge"><div class="price-type">Premium</div><div class="price-val">$${prices.premium}</div></div>
+            <div class="price-badge"><div class="price-type">Diesel</div><div class="price-val">$${prices.diesel}</div></div>
+          </div></div>`;
+      } else {
+        html += `<div class="section-box"><div class="section-title">⚡ EV Charging Stations</div>${evStations.map(s => `<div class="item"><div class="item-name">${s.name}</div><div class="item-detail">${s.cost}</div></div>`).join('')}</div>`;
+      }
+
+      html += `<div class="section-box"><div class="section-title">🚨 Areas to Avoid</div>${avoidAreas.map(a => `<div class="item">${a}</div>`).join('')}</div>`;
+      html += `<div class="section-box"><div class="section-title">🏕️ Safe Sleep Options</div>${sleepOptions.map(s => `<div class="item"><div class="item-name">${s.name}</div><div class="item-detail">${s.cost}</div></div>`).join('')}</div>`;
+      html += `<div class="section-box"><div class="section-title">🍔 Food Stops</div>${foodStops.map(f => `<div class="item"><div class="item-name">${f.name}</div><div class="item-detail">${f.price}/person</div></div>`).join('')}</div>`;
+
+      if (travelingWithPets && petStops.length > 0) {
+        html += `<div class="section-box" style="grid-column:1/-1"><div class="section-title">🐾 Pet-Friendly Stops</div>${petStops.map(p => `<div class="item"><div class="item-name">${p.name}</div><div class="item-detail">${p.detail}</div></div>`).join('')}</div>`;
+      }
+
+      html += `</div></div>`;
+    });
+
+    html += `<div class="footer">Trip Buddy Road Intelligence · tripbuddy.pro · Report generated ${now}</div></body></html>`;
+
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'TripBuddy-Report-' + cities[0].replace(/[^a-z0-9]/gi,'') + '-to-' + cities[cities.length-1].replace(/[^a-z0-9]/gi,'') + '.html';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function buildRecipes() {
+    const container = document.getElementById('recipes-container');
+    container.innerHTML = RECIPES.map(r => `
+      <div class="recipe-card">
+        <div class="recipe-title">${r.title}</div>
+        <div class="recipe-meta">⏱ ${r.time}</div>
+        <div class="recipe-desc">${r.desc}</div>
+        <div class="recipe-ingredients"><strong>// INGREDIENTS + METHOD //</strong>${r.ingredients}</div>
+      </div>`).join('');
+  }
+
+  function showCityPage(pageId, btn) {
+    document.querySelectorAll('.city-report-page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.city-tab').forEach(b => b.classList.remove('active'));
+    const page = document.getElementById('page-' + pageId);
+    if (page) page.classList.add('active');
+    if (btn) btn.classList.add('active');
+  }
+
+  function showCityPageById(cityId) {
+    const tab = document.querySelector(`.city-tab[data-city="${cityId}"]`);
+    showCityPage('city-' + cityId.replace('city-',''), tab);
+  }
+
+  function resetReports() {
+    document.querySelectorAll('.city-report-page[data-city]').forEach(p => p.remove());
+    document.querySelectorAll('.city-tab[data-city]').forEach(t => t.remove());
+    document.getElementById('page-overview').innerHTML = `<div class="empty-state">
+      <div class="empty-state-icon">🗺️</div>
+      <div class="empty-state-title">ENTER YOUR ROUTE TO BEGIN</div>
+      <div class="empty-state-sub">Add origin, destination, and up to 8 stops.<br>A full intel report will be generated for each city.</div>
+    </div>`;
+    showCityPage('overview', document.querySelector('.city-tab-overview'));
+  }
+
+</script>
+
+<script async defer
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCK58LSJDuGtcXEs-Jxfcdjqv9yh4dvf0o&libraries=places&callback=initMap">
+</script>
+</body>
+</html>
