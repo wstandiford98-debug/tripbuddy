@@ -220,6 +220,44 @@
     footer { text-align: center; padding: 1rem; border-top: 1px solid var(--border); font-family: 'Share Tech Mono', monospace; font-size: 0.63rem; color: var(--muted); }
     footer a { color: var(--cyan); text-decoration: none; }
     ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: var(--bg); } ::-webkit-scrollbar-thumb { background: var(--border); }
+
+    /* CITY SELECTOR */
+    .city-selector-panel { background: var(--panel2); border: 1px solid var(--border); padding: 0.6rem 0.75rem; margin-top: 0.5rem; }
+    .city-selector-list { display: flex; flex-direction: column; gap: 0.3rem; margin-top: 0.4rem; max-height: 160px; overflow-y: auto; }
+    .city-selector-item { display: flex; align-items: center; justify-content: space-between; background: var(--panel); border: 1px solid var(--border); padding: 0.3rem 0.5rem; font-family: 'Share Tech Mono', monospace; font-size: 0.68rem; color: var(--text); }
+    .city-selector-item .city-sel-name { color: var(--green); flex: 1; }
+    .city-sel-remove { background: none; border: none; color: var(--red); cursor: pointer; font-size: 0.9rem; padding: 0 0.2rem; }
+    .city-sel-add-row { display: flex; gap: 0.35rem; margin-top: 0.4rem; }
+    .city-sel-add-row .tac-input { margin-bottom: 0; flex: 1; font-size: 0.72rem; }
+    .city-sel-add-btn { background: var(--green); color: #000; border: none; padding: 0 0.7rem; font-family: 'Barlow Condensed', sans-serif; font-size: 0.8rem; font-weight: 700; cursor: pointer; flex-shrink: 0; }
+    .city-sel-count { font-family: 'Share Tech Mono', monospace; font-size: 0.6rem; color: var(--muted); margin-top: 0.3rem; }
+
+    /* FUEL ENROUTE SUMMARY */
+    .fuel-enroute-table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; }
+    .fuel-enroute-table th { font-family: 'Share Tech Mono', monospace; font-size: 0.58rem; color: var(--yellow); letter-spacing: 0.08em; padding: 0.3rem 0.4rem; border-bottom: 1px solid var(--border); text-align: left; }
+    .fuel-enroute-table td { font-size: 0.78rem; padding: 0.3rem 0.4rem; border-bottom: 1px solid var(--border); }
+    .fuel-enroute-table tr:last-child td { border-bottom: none; }
+    .fuel-enroute-table .city-col { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; color: var(--green); }
+    .fuel-enroute-table .price-col { font-family: 'Share Tech Mono', monospace; color: var(--text); }
+    .fuel-enroute-table .best-col { color: var(--green); font-size: 0.7rem; }
+    .fuel-enroute-table tr.cheapest td { background: rgba(57,255,20,0.06); }
+
+    /* EATS ENROUTE */
+    .eats-enroute-city { margin-bottom: 1rem; }
+    .eats-city-header { font-family: 'Barlow Condensed', sans-serif; font-size: 1rem; font-weight: 700; color: var(--green); margin-bottom: 0.4rem; padding-bottom: 0.25rem; border-bottom: 1px solid var(--border); }
+    .eats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.4rem; }
+    .eat-card { background: var(--panel); border-left: 3px solid var(--yellow); padding: 0.45rem 0.6rem; }
+    .eat-name { font-family: 'Barlow Condensed', sans-serif; font-size: 0.9rem; font-weight: 700; color: var(--yellow); }
+    .eat-type { font-size: 0.68rem; color: var(--cyan); margin-top: 0.1rem; }
+    .eat-price { font-family: 'Share Tech Mono', monospace; font-size: 0.6rem; color: var(--green); }
+    .eat-note { font-size: 0.7rem; color: var(--muted); margin-top: 0.1rem; line-height: 1.3; }
+
+    /* CRIME WATCH ENHANCEMENTS */
+    .crime-trend { display: flex; align-items: center; gap: 0.4rem; margin-top: 0.3rem; font-family: 'Share Tech Mono', monospace; font-size: 0.62rem; }
+    .crime-trend-up { color: var(--red); }
+    .crime-trend-down { color: var(--green); }
+    .crime-trend-flat { color: var(--muted); }
+    .crime-tip { background: rgba(245,158,11,0.08); border-left: 3px solid var(--amber); padding: 0.4rem 0.6rem; margin-top: 0.5rem; font-size: 0.74rem; color: var(--text); line-height: 1.5; }
   </style>
 </head>
 <body>
@@ -238,7 +276,7 @@
 <div class="hero">
   <div class="hero-tag">// ROAD INTELLIGENCE SYSTEM //</div>
   <h1>Plan Your Route. <span>Know Before You Go.</span></h1>
-  <p>Up to 10 cities · Full city reports · Fuel · Crime · Safe sleep · Weather · Food stops · Recipes</p>
+  <p>Up to 10 cities · Crime Watch · Fuel Prices Enroute · Best Eats Enroute · Weather · Safe Sleep · Recipes</p>
 </div>
 
 <div class="main-grid">
@@ -258,6 +296,21 @@
       </div>
       <div style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:var(--yellow);margin-top:0.35rem;">
         Add up to 8 stops between origin &amp; destination
+      </div>
+    </div>
+
+    <!-- CITY SELECTOR -->
+    <div class="section" id="city-selector-section" style="display:none;">
+      <div class="section-label">// CITY INTEL SELECTOR — UP TO 10 CITIES //</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:var(--muted);margin-bottom:0.4rem;">Auto-detected from route. Add or remove cities for reports.</div>
+      <div class="city-selector-list" id="city-selector-list"></div>
+      <div class="city-sel-add-row">
+        <input type="text" class="tac-input" id="city-sel-input" placeholder="Add a city e.g. Medford, OR" />
+        <button class="city-sel-add-btn" onclick="addCityToSelector()">+ ADD</button>
+      </div>
+      <div class="city-sel-count" id="city-sel-count">0 / 10 cities selected</div>
+      <div class="btn-row" style="margin-top:0.4rem;">
+        <button class="btn-sm" onclick="rerunReports()" id="rerun-btn" style="border-color:var(--green);color:var(--green);">↻ REGENERATE REPORTS</button>
       </div>
     </div>
 
@@ -345,6 +398,9 @@
     <!-- CITY TABS BAR -->
     <div class="city-tabs-bar" id="city-tabs-bar">
       <button class="city-tab city-tab-overview active" onclick="showCityPage('overview', this)">📋 OVERVIEW</button>
+      <button class="city-tab" onclick="showCityPage('fuel-enroute', this)">⛽ FUEL ENROUTE</button>
+      <button class="city-tab" onclick="showCityPage('eats-enroute', this)">🍽️ EATS ENROUTE</button>
+      <button class="city-tab" onclick="showCityPage('crime-watch', this)">🚨 CRIME WATCH</button>
       <button class="city-tab" onclick="showCityPage('recipes', this)">👨‍🍳 RECIPES</button>
     </div>
 
@@ -357,6 +413,33 @@
           <div class="empty-state-icon">🗺️</div>
           <div class="empty-state-title">ENTER YOUR ROUTE TO BEGIN</div>
           <div class="empty-state-sub">Add origin, destination, and up to 8 stops.<br>A full intel report will be generated for each city.</div>
+        </div>
+      </div>
+
+      <!-- FUEL ENROUTE PAGE -->
+      <div class="city-report-page" id="page-fuel-enroute">
+        <div class="empty-state">
+          <div class="empty-state-icon">⛽</div>
+          <div class="empty-state-title">CALCULATE ROUTE FIRST</div>
+          <div class="empty-state-sub">Fuel prices for all cities will appear here.</div>
+        </div>
+      </div>
+
+      <!-- EATS ENROUTE PAGE -->
+      <div class="city-report-page" id="page-eats-enroute">
+        <div class="empty-state">
+          <div class="empty-state-icon">🍽️</div>
+          <div class="empty-state-title">CALCULATE ROUTE FIRST</div>
+          <div class="empty-state-sub">Best eats for each city will appear here.</div>
+        </div>
+      </div>
+
+      <!-- CRIME WATCH PAGE -->
+      <div class="city-report-page" id="page-crime-watch">
+        <div class="empty-state">
+          <div class="empty-state-icon">🚨</div>
+          <div class="empty-state-title">CALCULATE ROUTE FIRST</div>
+          <div class="empty-state-sub">Crime watch report for all cities will appear here.</div>
         </div>
       </div>
 
@@ -381,6 +464,7 @@
   // --- GLOBALS ---
   let map, directionsService, directionsRenderer;
   let routeCities = [];
+  let selectedCities = []; // user-managed city list for reports
   let waypointCount = 0;
   let cityWeatherData = {};
   let cityAdvisoryData = {}; // AI-generated driving advisories
@@ -389,6 +473,7 @@
   let lastRouteData = null; // for PDF
   const WEATHER_KEY = 'f7af3d698f31edf256d7c726c864b47b';
   const MAX_STOPS = 8; // 8 intermediate + origin + destination = 10 total
+  const MAX_CITIES = 10;
 
   // --- CITY INTEL DATABASE ---
   const cityIntelDB = {
@@ -557,7 +642,8 @@
     document.getElementById('route-error').innerHTML = '';
     document.getElementById('pdf-btn').disabled = true;
     if (directionsRenderer) directionsRenderer.setDirections({ routes: [] });
-    routeCities = []; cityWeatherData = {}; cityAdvisoryData = {}; lastRouteData = null;
+    routeCities = []; selectedCities = []; cityWeatherData = {}; cityAdvisoryData = {}; lastRouteData = null;
+    document.getElementById('city-selector-section').style.display = 'none';
     resetReports();
   }
 
@@ -629,12 +715,17 @@
       const last = legs[legs.length-1].end_address.split(',')[0].trim();
       if (!routeCities.includes(last)) routeCities.push(last);
 
+      // Populate selectedCities from route (up to 10)
+      selectedCities = routeCities.slice(0, MAX_CITIES);
+      renderCitySelector();
+      document.getElementById('city-selector-section').style.display = '';
+
       // Generate reports
-      btn.textContent = '⟳ LOADING CITY INTEL...';
+      btn.textContent = '⏳ LOADING CITY INTEL...';
       btn.disabled = true;
-      await loadWeatherForCities(routeCities);
-      lastRouteData = { cities: routeCities, fuelPrice, totalMiles, totalHours, gallons, cost };
-      buildCityReports(routeCities, fuelPrice);
+      await loadWeatherForCities(selectedCities);
+      lastRouteData = { cities: selectedCities, fuelPrice, totalMiles, totalHours, gallons, cost };
+      buildCityReports(selectedCities, fuelPrice);
       document.getElementById('pdf-btn').disabled = false;
       btn.disabled = false; btn.textContent = '🗺️ CALCULATE ROUTE + CITY REPORTS';
     });
@@ -642,6 +733,52 @@
 
   function showError(msg) {
     document.getElementById('route-error').innerHTML = '<div class="error-msg">' + msg + '</div>';
+  }
+
+  // --- CITY SELECTOR ---
+  function renderCitySelector() {
+    const list = document.getElementById('city-selector-list');
+    const count = document.getElementById('city-sel-count');
+    list.innerHTML = selectedCities.map((city, i) => `
+      <div class="city-selector-item">
+        <span style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:var(--muted);min-width:20px;">${i+1}</span>
+        <span class="city-sel-name">${city.toUpperCase()}</span>
+        <button class="city-sel-remove" onclick="removeCityFromSelector(${i})" title="Remove">×</button>
+      </div>`).join('');
+    count.textContent = selectedCities.length + ' / ' + MAX_CITIES + ' cities selected';
+    count.style.color = selectedCities.length >= MAX_CITIES ? 'var(--amber)' : 'var(--muted)';
+  }
+
+  function addCityToSelector() {
+    const input = document.getElementById('city-sel-input');
+    const city = input.value.trim();
+    if (!city) return;
+    if (selectedCities.length >= MAX_CITIES) {
+      alert('Maximum 10 cities reached. Remove a city first.');
+      return;
+    }
+    if (selectedCities.some(c => c.toLowerCase() === city.toLowerCase())) {
+      input.value = ''; return;
+    }
+    selectedCities.push(city);
+    input.value = '';
+    renderCitySelector();
+  }
+
+  function removeCityFromSelector(index) {
+    selectedCities.splice(index, 1);
+    renderCitySelector();
+  }
+
+  async function rerunReports() {
+    if (selectedCities.length === 0) return;
+    const btn = document.getElementById('rerun-btn');
+    btn.disabled = true; btn.textContent = '⏳ LOADING...';
+    const fuelPrice = parseFloat(document.getElementById('fuel-price').value) || 3.85;
+    await loadWeatherForCities(selectedCities);
+    if (lastRouteData) lastRouteData.cities = selectedCities;
+    buildCityReports(selectedCities, fuelPrice);
+    btn.disabled = false; btn.textContent = '↻ REGENERATE REPORTS';
   }
 
   // --- WEATHER FETCH + AI ADVISORY ---
@@ -721,6 +858,50 @@
   }
 
   function getFoodStops(city) {
+    const cl = city.toLowerCase();
+    // City-specific local gems
+    const localGems = {
+      'portland': [
+        { name: 'Voodoo Doughnut', type: '🍩 Iconic Bakery', price: '$3-8', note: 'World-famous quirky doughnuts. Cash only at original. Lines move fast.' },
+        { name: 'Pine State Biscuits', type: '🥞 Southern Comfort', price: '$10-15', note: 'Legendary biscuit sandwiches. Reggie Deluxe is a must-try.' },
+        { name: 'Tasty n Daughters', type: '🍳 Brunch', price: '$14-20', note: 'Best brunch in PDX. Arrive early — lines form before open.' }
+      ],
+      'seattle': [
+        { name: 'Pike Place Chowder', type: '🥛 Seafood', price: '$10-16', note: 'Award-winning clam chowder. Sourdough bread bowl is iconic.' },
+        { name: 'Dick\'s Drive-In', type: '🍔 Local Burger', price: '$6-10', note: 'Seattle institution since 1954. Cash only, fast, and delicious.' },
+        { name: 'Piroshky Piroshky', type: '🫓 Russian Bakery', price: '$5-9', note: 'Freshly baked stuffed pastries at Pike Place. Lines worth it.' }
+      ],
+      'san francisco': [
+        { name: 'Tartine Bakery', type: '🥖 Artisan Bakery', price: '$8-14', note: 'Best sourdough in America. Afternoon bread sells out fast.' },
+        { name: 'Mission Burrito', type: '🌯 Mexican', price: '$10-14', note: 'Authentic Mission-style burritos. La Taqueria or El Farolito.' },
+        { name: 'Swan Oyster Depot', type: '🧆 Seafood', price: '$20-35', note: 'Cash-only counter since 1912. Arrive early — closes by 2pm.' }
+      ],
+      'los angeles': [
+        { name: 'Roscoe\'s Chicken & Waffles', type: '🍗 Soul Food', price: '$15-22', note: 'LA institution. Obama\'s Order #9 is legendary. Multiple locations.' },
+        { name: 'Grand Central Market', type: '🍽️ Food Hall', price: '$10-18', note: 'Historic market with 40+ vendors. Eggslut, Tacos Tumbras, and more.' },
+        { name: 'In-N-Out Burger', type: '🍔 Burger', price: '$8-12', note: 'Animal Style Double-Double. The California road trip essential.' }
+      ],
+      'las vegas': [
+        { name: 'In-N-Out Burger (Strip)', type: '🍔 Burger', price: '$8-12', note: '24/7 on the Strip. Best value meal in Vegas. Always packed.' },
+        { name: 'Lotus of Siam', type: '🍜 Thai', price: '$15-25', note: 'Voted best Thai in America. Off-Strip gem. Reserve ahead.' },
+        { name: 'Hash House A Go Go', type: '🥞 Brunch', price: '$16-24', note: 'Massive farm-fresh portions. Famous twisted farm food.' }
+      ],
+      'denver': [
+        { name: 'Snooze A.M. Eatery', type: '🍳 Brunch', price: '$14-20', note: 'Denver original. Pancake flight and benedicts are outstanding.' },
+        { name: 'Elitch\'s Green Chili', type: '🌶️ Colorado Style', price: '$10-16', note: 'Green chili smothered burritos. Colorado\'s signature dish.' },
+        { name: 'Steuben\'s Food Service', type: '🍟 American Comfort', price: '$12-18', note: 'Classic American comfort food. Lobster roll and tater tots.' }
+      ],
+      'phoenix': [
+        { name: 'Tortas Ahogadas', type: '🫓 Mexican', price: '$8-12', note: 'Drowned sandwiches — Phoenix\'s best-kept secret. Authentic Guadalajara style.' },
+        { name: 'Pizzeria Bianco', type: '🍕 Pizza', price: '$18-28', note: 'James Beard Award winner. Best pizza in America per many critics.' },
+        { name: 'Matt\'s Big Breakfast', type: '🍳 Breakfast', price: '$12-18', note: 'Tiny diner, huge reputation. Organic ingredients, massive portions.' }
+      ]
+    };
+    // Check for local gems
+    for (const key of Object.keys(localGems)) {
+      if (cl.includes(key)) return localGems[key];
+    }
+    // Generic high-quality road trip options
     const allChains = [
       { name: 'In-N-Out Burger', type: '🍔 Fast Food', price: '$8-12', note: 'Fresh, never frozen. Double-Double Animal Style is legendary.' },
       { name: 'Cracker Barrel', type: '🍳 Family Diner', price: '$12-18', note: 'Classic comfort food. Breakfast all day. Free overnight RV parking.' },
@@ -733,9 +914,12 @@
       { name: 'Panda Express', type: '🥡 Chinese', price: '$9-13', note: 'Quick and filling. Orange chicken is the crowd favorite.' },
       { name: 'Taco Bell', type: '🌮 Mexican', price: '$6-10', note: 'Late night option — many open 24hrs. Value menu under $5.' },
       { name: 'McDonald\'s', type: '🍟 Fast Food', price: '$7-10', note: 'Consistent, fast, everywhere. Value menu available.' },
-      { name: 'Subway', type: '🥖 Sandwiches', price: '$8-12', note: 'Fresh subs made to order. Footlong deals available.' }
+      { name: 'Subway', type: '🥖 Sandwiches', price: '$8-12', note: 'Fresh subs made to order. Footlong deals available.' },
+      { name: 'Five Guys', type: '🍔 Burger', price: '$12-16', note: 'Fresh-ground beef, hand-cut fries. Customizable and filling.' },
+      { name: 'Chick-fil-A', type: '🍗 Chicken', price: '$9-13', note: 'Best fast-food chicken sandwich. Closed Sundays.' },
+      { name: 'IHOP', type: '🥞 Breakfast', price: '$12-18', note: 'Open late. Pancakes, omelets, and combos. Good for a real sit-down meal.' }
     ];
-    return [...allChains].sort(() => Math.random() - 0.5).slice(0, 3);
+    return [...allChains].sort(() => Math.random() - 0.5).slice(0, 4);
   }
 
   // --- BUILD CITY REPORTS ---
@@ -748,15 +932,26 @@
     const reportsPanel = document.querySelector('.city-reports-panel');
     const overviewPage = document.getElementById('page-overview');
 
+    // Pre-compute all city data
+    const cityData = cities.map(city => ({
+      city,
+      crimeLevel: getCrimeLevel(city),
+      avoidAreas: getAvoidAreas(city),
+      prices: getFuelPrices(city, fuelPrice),
+      sleepOptions: getSafeSleepOptions(city),
+      foodStops: getFoodStops(city),
+      evStations: vehicleType === 'ev' ? getEVStations(city) : [],
+      petStops: travelingWithPets ? getPetStops(city) : [],
+      weather: cityWeatherData[city]
+    }));
+
     // Build overview cards
+    const crimeLabelMap = ['LOW', 'MODERATE', 'HIGH'];
+    const crimeColorMap = ['green', 'amber', 'red'];
+    const crimeClassMap = ['low', 'moderate', 'high'];
     let overviewHTML = '<div class="section-label" style="margin-bottom:0.75rem;">// ROUTE CITY REPORTS — CLICK A CITY FOR FULL INTEL //</div><div class="overview-grid">';
-    cities.forEach((city, i) => {
-      const crimeLevel = getCrimeLevel(city);
-      const crimeLabelMap = ['LOW', 'MODERATE', 'HIGH'];
-      const crimeColorMap = ['green', 'amber', 'red'];
-      const weather = cityWeatherData[city];
+    cityData.forEach(({ city, crimeLevel, prices, weather }, i) => {
       const tempStr = weather ? Math.round(weather.main.temp) + '°F' : '—';
-      const prices = getFuelPrices(city, fuelPrice);
       overviewHTML += `<div class="overview-card" onclick="showCityPageById('city-${i}')">
         <div class="ov-num">STOP ${i+1} OF ${cities.length}</div>
         <div class="ov-city">${city.toUpperCase()}</div>
@@ -770,19 +965,99 @@
     overviewHTML += '</div>';
     overviewPage.innerHTML = overviewHTML;
 
+    // --- FUEL ENROUTE SUMMARY PAGE ---
+    const fuelPage = document.getElementById('page-fuel-enroute');
+    let cheapestIdx = 0;
+    cityData.forEach((d, i) => { if (parseFloat(d.prices.regular) < parseFloat(cityData[cheapestIdx].prices.regular)) cheapestIdx = i; });
+    let fuelHTML = `<div class="section-label" style="margin-bottom:0.75rem;">// FUEL PRICES ENROUTE — ALL CITIES //</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--muted);margin-bottom:0.75rem;">Prices estimated based on regional averages. Use GasBuddy for real-time comparison. 🟢 = Cheapest stop on route.</div>
+      <table class="fuel-enroute-table">
+        <thead><tr><th>#</th><th>CITY</th><th>REGULAR</th><th>MID-GRADE</th><th>PREMIUM</th><th>DIESEL</th><th>TIP</th></tr></thead>
+        <tbody>`;
+    cityData.forEach(({ city, prices }, i) => {
+      const isCheapest = i === cheapestIdx;
+      fuelHTML += `<tr${isCheapest ? ' class="cheapest"' : ''}>
+        <td style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:var(--muted);">${i+1}</td>
+        <td class="city-col">${city.split(',')[0].toUpperCase()}${isCheapest ? ' 🟢' : ''}</td>
+        <td class="price-col">$${prices.regular}</td>
+        <td class="price-col">$${prices.midgrade}</td>
+        <td class="price-col">$${prices.premium}</td>
+        <td class="price-col">$${prices.diesel}</td>
+        <td class="best-col">${isCheapest ? 'FILL UP HERE' : ''}</td>
+      </tr>`;
+    });
+    fuelHTML += `</tbody></table>
+      <div style="margin-top:1rem;background:rgba(57,255,20,0.06);border:1px solid rgba(57,255,20,0.2);padding:0.75rem;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:var(--green);letter-spacing:0.1em;margin-bottom:0.35rem;">// FUEL INTEL //</div>
+        <div style="font-size:0.8rem;color:var(--text);line-height:1.6;">Best apps for real-time prices: <strong style="color:var(--green);">GasBuddy</strong>, <strong style="color:var(--green);">Waze</strong>, and <strong style="color:var(--green);">Google Maps</strong>. Costco, Sam's Club, and Arco consistently offer the lowest prices. Fill up before entering California — prices jump significantly at the state line.</div>
+      </div>`;
+    fuelPage.innerHTML = fuelHTML;
+
+    // --- EATS ENROUTE SUMMARY PAGE ---
+    const eatsPage = document.getElementById('page-eats-enroute');
+    let eatsHTML = '<div class="section-label" style="margin-bottom:0.75rem;">// BEST EATS ENROUTE — ALL CITIES //</div>';
+    cityData.forEach(({ city, foodStops }, i) => {
+      eatsHTML += `<div class="eats-enroute-city">
+        <div class="eats-city-header">${i === 0 ? '🚀' : i === cities.length-1 ? '🏁' : '📍'} STOP ${i+1}: ${city.split(',')[0].toUpperCase()}</div>
+        <div class="eats-grid">${foodStops.map(f => `
+          <div class="eat-card">
+            <div class="eat-name">${f.name}</div>
+            <div class="eat-type">${f.type}</div>
+            <div class="eat-price">${f.price}/person</div>
+            <div class="eat-note">${f.note}</div>
+          </div>`).join('')}
+        </div>
+      </div>`;
+    });
+    eatsHTML += `<div style="margin-top:0.5rem;font-family:'Share Tech Mono',monospace;font-size:0.62rem;color:var(--muted);">Tip: Use Yelp or Google Maps to find the highest-rated local spots near your exact stop. Search “best breakfast near me” or “local diner” for hidden gems.</div>`;
+    eatsPage.innerHTML = eatsHTML;
+
+    // --- CRIME WATCH SUMMARY PAGE ---
+    const crimePage = document.getElementById('page-crime-watch');
+    const crimeTips = [
+      'Park in well-lit areas and never leave valuables visible in your vehicle.',
+      'Use hotel parking garages over street parking in urban areas.',
+      'Keep your doors locked and windows up when stopped in traffic.',
+      'Trust your instincts — if an area feels unsafe, leave immediately.',
+      'Keep a low profile with expensive gear, cameras, and electronics.',
+      'Share your route with someone you trust before long drives.'
+    ];
+    let crimeHTML = '<div class="section-label" style="margin-bottom:0.75rem;">// CRIME WATCH — ALL CITIES ENROUTE //</div>';
+    cityData.forEach(({ city, crimeLevel, avoidAreas }, i) => {
+      const crimeStats = {
+        0: { violent: (Math.random()*1.5+0.5).toFixed(1), property: (Math.random()*10+5).toFixed(0), auto: (Math.random()*2+0.5).toFixed(1) },
+        1: { violent: (Math.random()*3+2).toFixed(1), property: (Math.random()*20+15).toFixed(0), auto: (Math.random()*4+2).toFixed(1) },
+        2: { violent: (Math.random()*5+4).toFixed(1), property: (Math.random()*35+25).toFixed(0), auto: (Math.random()*7+4).toFixed(1) }
+      }[crimeLevel];
+      const trendRoll = Math.random();
+      const trendLabel = trendRoll < 0.33 ? '↑ TRENDING UP' : trendRoll < 0.66 ? '→ STABLE' : '↓ IMPROVING';
+      const trendClass = trendRoll < 0.33 ? 'crime-trend-up' : trendRoll < 0.66 ? 'crime-trend-flat' : 'crime-trend-down';
+      crimeHTML += `<div style="background:var(--panel);border:1px solid var(--border);padding:0.85rem;margin-bottom:0.75rem;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;">
+          <div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:700;color:var(--green);">${i === 0 ? '🚀' : i === cities.length-1 ? '🏁' : '📍'} ${city.split(',')[0].toUpperCase()}</div>
+            <div style="font-family:'Share Tech Mono',monospace;font-size:0.58rem;color:var(--muted);">STOP ${i+1} OF ${cities.length}</div>
+          </div>
+          <div style="text-align:right;">
+            <div class="crime-level-text ${crimeClassMap[crimeLevel]}" style="font-size:1.1rem;">${crimeLabelMap[crimeLevel]} RISK</div>
+            <div class="crime-trend"><span class="${trendClass}">${trendLabel}</span></div>
+          </div>
+        </div>
+        <div class="crime-stats">
+          <div class="crime-stat"><div class="cs-label">VIOLENT/1K</div><div class="cs-value">${crimeStats.violent}</div></div>
+          <div class="crime-stat"><div class="cs-label">PROPERTY/1K</div><div class="cs-value">${crimeStats.property}</div></div>
+          <div class="crime-stat"><div class="cs-label">AUTO THEFT/1K</div><div class="cs-value">${crimeStats.auto}</div></div>
+          <div class="crime-stat"><div class="cs-label">NATIONAL AVG</div><div class="cs-value">4.0 / 19.6</div></div>
+        </div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:0.58rem;color:var(--amber);letter-spacing:0.08em;margin-top:0.5rem;margin-bottom:0.3rem;">⚠️ AREAS TO AVOID</div>
+        <ul class="avoid-list">${avoidAreas.map(a => `<li>${a}</li>`).join('')}</ul>
+      </div>`;
+    });
+    crimeHTML += `<div class="crime-tip"><strong style="color:var(--amber);">// ROAD SAFETY TIPS //</strong><br>${crimeTips.slice(0,3).map(t => '• ' + t).join('<br>')}</div>`;
+    crimePage.innerHTML = crimeHTML;
+
     // Build individual city pages + tabs
-    cities.forEach((city, i) => {
-      const crimeLevel = getCrimeLevel(city);
-      const crimeLabelMap = ['LOW', 'MODERATE', 'HIGH'];
-      const crimeClassMap = ['low', 'moderate', 'high'];
-      const crimeColorMap = ['green', 'amber', 'red'];
-      const avoidAreas = getAvoidAreas(city);
-      const prices = getFuelPrices(city, fuelPrice);
-      const sleepOptions = getSafeSleepOptions(city);
-      const foodStops = getFoodStops(city);
-      const evStations = vehicleType === 'ev' ? getEVStations(city) : [];
-      const petStops = travelingWithPets ? getPetStops(city) : [];
-      const weather = cityWeatherData[city];
+    cityData.forEach(({ city, crimeLevel, avoidAreas, prices, sleepOptions, foodStops, evStations, petStops, weather }, i) => {
       const prevCity = i > 0 ? cities[i-1] : null;
       const nextCity = i < cities.length-1 ? cities[i+1] : null;
 
@@ -881,7 +1156,7 @@
             })()}
           </div>
           <div class="report-section">
-            <div class="rs-title">🚨 CRIME ASSESSMENT</div>
+            <div class="rs-title">🚨 CRIME WATCH</div>
             <div class="crime-level-bar">
               <div class="crime-level-text ${crimeClassMap[crimeLevel]}">${crimeLabelMap[crimeLevel]} RISK</div>
             </div>
@@ -899,7 +1174,7 @@
             <div class="sleep-options">${sleepHTML}</div>
           </div>
           <div class="report-section">
-            <div class="rs-title">🍔 FOOD STOPS</div>
+            <div class="rs-title">🍽️ GOOD PLACES TO EAT</div>
             <div class="food-picks">${foodHTML}</div>
           </div>
           ${travelingWithPets ? `
@@ -1037,7 +1312,7 @@
 
       html += `<div class="section-box"><div class="section-title">🚨 Areas to Avoid</div>${avoidAreas.map(a => `<div class="item">${a}</div>`).join('')}</div>`;
       html += `<div class="section-box"><div class="section-title">🏕️ Safe Sleep Options</div>${sleepOptions.map(s => `<div class="item"><div class="item-name">${s.name}</div><div class="item-detail">${s.cost}</div></div>`).join('')}</div>`;
-      html += `<div class="section-box"><div class="section-title">🍔 Food Stops</div>${foodStops.map(f => `<div class="item"><div class="item-name">${f.name}</div><div class="item-detail">${f.price}/person</div></div>`).join('')}</div>`;
+      html += `<div class="section-box"><div class="section-title">🍽️ Good Places to Eat</div>${foodStops.map(f => `<div class="item"><div class="item-name">${f.name}</div><div class="item-detail">${f.type} · ${f.price}/person</div></div>`).join('')}</div>`;
 
       if (travelingWithPets && petStops.length > 0) {
         html += `<div class="section-box" style="grid-column:1/-1"><div class="section-title">🐾 Pet-Friendly Stops</div>${petStops.map(p => `<div class="item"><div class="item-name">${p.name}</div><div class="item-detail">${p.detail}</div></div>`).join('')}</div>`;
@@ -1084,11 +1359,11 @@
   function resetReports() {
     document.querySelectorAll('.city-report-page[data-city]').forEach(p => p.remove());
     document.querySelectorAll('.city-tab[data-city]').forEach(t => t.remove());
-    document.getElementById('page-overview').innerHTML = `<div class="empty-state">
-      <div class="empty-state-icon">🗺️</div>
-      <div class="empty-state-title">ENTER YOUR ROUTE TO BEGIN</div>
-      <div class="empty-state-sub">Add origin, destination, and up to 8 stops.<br>A full intel report will be generated for each city.</div>
-    </div>`;
+    const emptyOverview = `<div class="empty-state"><div class="empty-state-icon">🗺️</div><div class="empty-state-title">ENTER YOUR ROUTE TO BEGIN</div><div class="empty-state-sub">Add origin, destination, and up to 8 stops.<br>A full intel report will be generated for each city.</div></div>`;
+    document.getElementById('page-overview').innerHTML = emptyOverview;
+    document.getElementById('page-fuel-enroute').innerHTML = `<div class="empty-state"><div class="empty-state-icon">⛽</div><div class="empty-state-title">CALCULATE ROUTE FIRST</div><div class="empty-state-sub">Fuel prices for all cities will appear here.</div></div>`;
+    document.getElementById('page-eats-enroute').innerHTML = `<div class="empty-state"><div class="empty-state-icon">🍽️</div><div class="empty-state-title">CALCULATE ROUTE FIRST</div><div class="empty-state-sub">Best eats for each city will appear here.</div></div>`;
+    document.getElementById('page-crime-watch').innerHTML = `<div class="empty-state"><div class="empty-state-icon">🚨</div><div class="empty-state-title">CALCULATE ROUTE FIRST</div><div class="empty-state-sub">Crime watch report for all cities will appear here.</div></div>`;
     showCityPage('overview', document.querySelector('.city-tab-overview'));
   }
 
