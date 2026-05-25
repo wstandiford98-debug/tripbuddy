@@ -284,6 +284,16 @@
   <!-- LEFT: ROUTE PLANNER -->
   <div class="left-panel">
 
+    <!-- CRIMEGRADE BANNER -->
+    <div style="background:#1a1a00;border:1.5px solid #ffc107;border-radius:8px;padding:10px 12px;margin-bottom:10px;">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:0.62rem;color:#ffc107;letter-spacing:0.1em;margin-bottom:5px;">🔍 CRIMEGRADE — NEIGHBORHOOD SAFETY</div>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <input id="cg-zip" type="text" maxlength="5" placeholder="Zip code" style="flex:1;padding:6px 8px;background:#0a0f1e;border:1px solid #ffc107;border-radius:5px;font-family:'Share Tech Mono',monospace;font-size:0.78rem;color:#ffe082;outline:none;" />
+        <button onclick="openCrimeGrade()" style="padding:6px 10px;background:#ffc107;color:#0a0f1e;border:none;border-radius:5px;font-family:'Share Tech Mono',monospace;font-size:0.7rem;font-weight:700;cursor:pointer;white-space:nowrap;letter-spacing:0.05em;">GET GRADE ▶</button>
+      </div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:0.55rem;color:#8a7a00;margin-top:4px;">A–F safety grade for any US zip · opens crimegrade.org</div>
+    </div>
+
     <div class="section">
       <div class="section-label">// WAYPOINTS — UP TO 10 CITIES //</div>
       <div id="waypoints-container">
@@ -596,6 +606,16 @@
     const input = document.getElementById(id);
     if (!input) return;
     new google.maps.places.Autocomplete(input, { types: ['(cities)'] });
+  }
+
+  // --- CRIMEGRADE LOOKUP ---
+  function openCrimeGrade() {
+    const zip = document.getElementById('cg-zip').value.trim();
+    if (!zip || !/^\d{5}$/.test(zip)) {
+      alert('Please enter a valid 5-digit US zip code.');
+      return;
+    }
+    window.open('https://crimegrade.org/safest-places-in-' + zip + '/', '_blank', 'noopener');
   }
 
   // --- WAYPOINTS ---
