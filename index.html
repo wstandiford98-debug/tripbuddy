@@ -29,6 +29,34 @@
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
     .food-buddy-btn { background: transparent; border: 1px solid var(--yellow); color: var(--yellow); padding: 0.4rem 0.9rem; font-family: 'Barlow Condensed', sans-serif; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.08em; cursor: pointer; text-decoration: none; transition: all 0.2s; }
     .food-buddy-btn:hover { background: rgba(255,230,0,0.1); }
+    .account-btn { background: transparent; border: 1px solid var(--cyan); color: var(--cyan); padding: 0.4rem 0.8rem; font-family: 'Barlow Condensed', sans-serif; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.08em; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+    .account-btn:hover, .account-btn:focus-visible { background: rgba(0,187,195,0.12); outline: none; }
+    .auth-overlay { position: fixed; inset: 0; z-index: 1000; display: none; align-items: center; justify-content: center; padding: 1rem; background: rgba(3,8,16,0.82); }
+    .auth-overlay.open { display: flex; }
+    .auth-dialog { width: min(100%, 420px); background: var(--panel); border: 1px solid var(--cyan); box-shadow: 0 20px 60px rgba(0,0,0,0.55); padding: 1.1rem; position: relative; }
+    .auth-close { position: absolute; top: 0.65rem; right: 0.7rem; border: none; background: transparent; color: var(--muted); font-size: 1.25rem; cursor: pointer; line-height: 1; padding: 0.25rem; }
+    .auth-close:hover, .auth-close:focus-visible { color: var(--text); outline: 1px solid var(--cyan); }
+    .auth-kicker { font-family: 'Share Tech Mono', monospace; font-size: 0.62rem; color: var(--yellow); letter-spacing: 0.13em; margin-bottom: 0.35rem; }
+    .auth-title { font-family: 'Barlow Condensed', sans-serif; font-size: 1.45rem; font-weight: 800; color: var(--green); letter-spacing: 0.03em; }
+    .auth-copy { color: var(--muted); font-size: 0.78rem; line-height: 1.45; margin: 0.35rem 0 0.85rem; }
+    .auth-mode-row { display: flex; gap: 0.35rem; margin-bottom: 0.75rem; }
+    .auth-mode-btn { flex: 1; border: 1px solid var(--border); background: var(--panel2); color: var(--muted); padding: 0.45rem; font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.07em; cursor: pointer; }
+    .auth-mode-btn.active { border-color: var(--cyan); color: var(--cyan); background: rgba(0,187,195,0.08); }
+    .auth-label { display: block; margin: 0.55rem 0 0.25rem; color: var(--text); font-family: 'Share Tech Mono', monospace; font-size: 0.63rem; letter-spacing: 0.08em; }
+    .auth-input { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 0.58rem 0.7rem; font-family: 'Barlow', sans-serif; font-size: 0.88rem; }
+    .auth-input:focus { border-color: var(--cyan); outline: none; }
+    .auth-actions { display: flex; align-items: center; gap: 0.55rem; margin-top: 0.9rem; }
+    .auth-submit { flex: 1; border: none; background: var(--green); color: #000; padding: 0.55rem 0.8rem; font-family: 'Barlow Condensed', sans-serif; font-size: 0.85rem; font-weight: 800; letter-spacing: 0.08em; cursor: pointer; }
+    .auth-submit:disabled { cursor: wait; opacity: 0.65; }
+    .auth-link { border: none; background: transparent; color: var(--cyan); padding: 0.2rem; font-size: 0.73rem; cursor: pointer; text-decoration: underline; }
+    .auth-feedback { min-height: 1.35rem; margin-top: 0.75rem; font-family: 'Share Tech Mono', monospace; font-size: 0.64rem; line-height: 1.4; color: var(--muted); }
+    .auth-feedback.error { color: var(--red); }
+    .auth-feedback.success { color: var(--green); }
+    .auth-account-view { display: none; padding: 0.75rem; border: 1px solid var(--border); background: var(--panel2); }
+    .auth-account-email { color: var(--text); font-size: 0.9rem; overflow-wrap: anywhere; }
+    .auth-account-state { margin-top: 0.35rem; font-family: 'Share Tech Mono', monospace; font-size: 0.61rem; color: var(--amber); }
+    .auth-account-state.verified { color: var(--green); }
+    @media (max-width: 680px) { header { padding: 0.65rem 0.8rem; } .header-right { gap: 0.45rem; } .status-badge { display: none; } .food-buddy-btn, .account-btn { padding: 0.38rem 0.55rem; font-size: 0.7rem; } }
 
     /* HERO */
     .hero { background: linear-gradient(135deg, #0a0f1e 0%, #030810 100%); padding: 1.25rem 1.5rem 0.9rem; text-align: center; border-bottom: 1px solid var(--border); }
@@ -269,10 +297,45 @@
   </a>
   <div class="header-right">
     <div class="status-badge"><div class="status-dot"></div>ROAD INTEL ACTIVE</div>
+    <button type="button" class="account-btn" id="account-btn" aria-haspopup="dialog" aria-controls="auth-overlay">SIGN IN</button>
     <a href="https://tripbuddy.pro/food-buddy-bites/" class="food-buddy-btn" target="_blank" rel="noopener">🍎 FOOD BUDDY BITES</a>
 
   </div>
 </header>
+
+<div class="auth-overlay" id="auth-overlay" role="presentation" aria-hidden="true">
+  <section class="auth-dialog" id="auth-dialog" role="dialog" aria-modal="true" aria-labelledby="auth-title" tabindex="-1">
+    <button type="button" class="auth-close" id="auth-close" aria-label="Close account dialog">×</button>
+    <div class="auth-kicker">// TRIPBUDDY ACCOUNT //</div>
+    <h2 class="auth-title" id="auth-title">SIGN IN TO TRIPBUDDY</h2>
+    <p class="auth-copy" id="auth-copy">Use your email and password to create a verified TripBuddy account. Route planning remains available without an account.</p>
+    <div id="auth-form-view">
+      <div class="auth-mode-row" aria-label="Account action">
+        <button type="button" class="auth-mode-btn active" id="auth-mode-signin">SIGN IN</button>
+        <button type="button" class="auth-mode-btn" id="auth-mode-register">CREATE ACCOUNT</button>
+      </div>
+      <form id="auth-form" novalidate>
+        <label class="auth-label" for="auth-email">EMAIL ADDRESS</label>
+        <input class="auth-input" id="auth-email" type="email" autocomplete="email" inputmode="email" required />
+        <label class="auth-label" for="auth-password">PASSWORD</label>
+        <input class="auth-input" id="auth-password" type="password" autocomplete="current-password" minlength="8" required />
+        <div class="auth-actions">
+          <button type="submit" class="auth-submit" id="auth-submit">SIGN IN</button>
+          <button type="button" class="auth-link" id="auth-reset">RESET PASSWORD</button>
+        </div>
+      </form>
+    </div>
+    <div class="auth-account-view" id="auth-account-view">
+      <div class="auth-account-email" id="auth-account-email"></div>
+      <div class="auth-account-state" id="auth-account-state"></div>
+      <div class="auth-actions">
+        <button type="button" class="auth-submit" id="auth-signout">SIGN OUT</button>
+        <button type="button" class="auth-link" id="auth-resend">RESEND VERIFICATION</button>
+      </div>
+    </div>
+    <div class="auth-feedback" id="auth-feedback" role="status" aria-live="polite"></div>
+  </section>
+</div>
 
 <div class="hero">
   <div class="hero-tag">// ROAD INTELLIGENCE SYSTEM //</div>
@@ -1400,6 +1463,155 @@
     showCityPage('overview', document.querySelector('.city-tab-overview'));
   }
 
+</script>
+
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+  import { getAuth, createUserWithEmailAndPassword, onAuthStateChanged, sendEmailVerification, sendPasswordResetEmail, signInWithEmailAndPassword, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+
+  const firebaseConfig = {
+    apiKey: 'AIzaSyAceTpyBvoctbS6h1RCL5qYSpvjidOMrlI',
+    authDomain: 'trip-buddy-travel-planner.firebaseapp.com',
+    projectId: 'trip-buddy-travel-planner',
+    storageBucket: 'trip-buddy-travel-planner.firebasestorage.app',
+    messagingSenderId: '1018723615088',
+    appId: '1:1018723615088:web:a1b69be5b38e8ecc5fcfb5',
+    measurementId: 'G-REF6Y5JFRX'
+  };
+
+  const auth = getAuth(initializeApp(firebaseConfig));
+  let authMode = 'signin';
+  let previousFocus = null;
+  const els = {
+    overlay: document.getElementById('auth-overlay'), dialog: document.getElementById('auth-dialog'), open: document.getElementById('account-btn'), close: document.getElementById('auth-close'),
+    formView: document.getElementById('auth-form-view'), accountView: document.getElementById('auth-account-view'), form: document.getElementById('auth-form'),
+    email: document.getElementById('auth-email'), password: document.getElementById('auth-password'), submit: document.getElementById('auth-submit'), reset: document.getElementById('auth-reset'),
+    signInMode: document.getElementById('auth-mode-signin'), registerMode: document.getElementById('auth-mode-register'), title: document.getElementById('auth-title'), copy: document.getElementById('auth-copy'),
+    feedback: document.getElementById('auth-feedback'), accountEmail: document.getElementById('auth-account-email'), accountState: document.getElementById('auth-account-state'),
+    signOut: document.getElementById('auth-signout'), resend: document.getElementById('auth-resend')
+  };
+
+  function setFeedback(message = '', type = '') {
+    els.feedback.textContent = message;
+    els.feedback.className = 'auth-feedback' + (type ? ' ' + type : '');
+  }
+
+  function setBusy(busy) {
+    els.submit.disabled = busy;
+    els.reset.disabled = busy;
+    els.submit.textContent = busy ? 'PLEASE WAIT…' : (authMode === 'signin' ? 'SIGN IN' : 'CREATE ACCOUNT');
+  }
+
+  function setMode(mode) {
+    authMode = mode;
+    const registering = mode === 'register';
+    els.signInMode.classList.toggle('active', !registering);
+    els.registerMode.classList.toggle('active', registering);
+    els.title.textContent = registering ? 'CREATE TRIPBUDDY ACCOUNT' : 'SIGN IN TO TRIPBUDDY';
+    els.copy.textContent = registering ? 'Create an account with a valid email. We will send a verification message after registration.' : 'Use your TripBuddy email and password. Route planning remains available without an account.';
+    els.password.autocomplete = registering ? 'new-password' : 'current-password';
+    els.submit.textContent = registering ? 'CREATE ACCOUNT' : 'SIGN IN';
+    els.reset.style.display = registering ? 'none' : '';
+    setFeedback();
+  }
+
+  function openDialog() {
+    previousFocus = document.activeElement;
+    els.overlay.classList.add('open');
+    els.overlay.setAttribute('aria-hidden', 'false');
+    setFeedback();
+    window.setTimeout(() => els.email.focus(), 0);
+  }
+
+  function closeDialog() {
+    els.overlay.classList.remove('open');
+    els.overlay.setAttribute('aria-hidden', 'true');
+    if (previousFocus) previousFocus.focus();
+  }
+
+  function readableError(error) {
+    if (error?.code === 'auth/operation-not-allowed') return 'Email-and-password sign-in is not enabled yet. Enable it in Firebase Authentication, then try again.';
+    if (error?.code === 'auth/invalid-email') return 'Enter a valid email address.';
+    if (error?.code === 'auth/weak-password') return 'Choose a password that meets the Firebase password policy.';
+    if (error?.code === 'auth/too-many-requests') return 'Too many attempts. Please wait a moment before trying again.';
+    if (error?.code === 'auth/network-request-failed') return 'A network connection is required to sign in.';
+    return 'Unable to complete that request. Check your details and try again.';
+  }
+
+  els.open.addEventListener('click', openDialog);
+  els.close.addEventListener('click', closeDialog);
+  els.overlay.addEventListener('click', event => { if (event.target === els.overlay) closeDialog(); });
+  document.addEventListener('keydown', event => { if (event.key === 'Escape' && els.overlay.classList.contains('open')) closeDialog(); });
+  els.signInMode.addEventListener('click', () => setMode('signin'));
+  els.registerMode.addEventListener('click', () => setMode('register'));
+
+  els.form.addEventListener('submit', async event => {
+    event.preventDefault();
+    const email = els.email.value.trim();
+    const password = els.password.value;
+    if (!email) return setFeedback('Enter your email address.', 'error');
+    if (password.length < 8) return setFeedback('Use at least 8 characters for your password.', 'error');
+    setBusy(true);
+    setFeedback();
+    try {
+      if (authMode === 'register') {
+        const credential = await createUserWithEmailAndPassword(auth, email, password);
+        await sendEmailVerification(credential.user);
+        setFeedback('Account created. A verification email has been sent to your inbox.', 'success');
+      } else {
+        await signInWithEmailAndPassword(auth, email, password);
+        setFeedback('Signed in successfully.', 'success');
+      }
+      els.password.value = '';
+    } catch (error) {
+      setFeedback(readableError(error), 'error');
+    } finally {
+      setBusy(false);
+    }
+  });
+
+  els.reset.addEventListener('click', async () => {
+    const email = els.email.value.trim();
+    if (!email) return setFeedback('Enter your email address first, then choose reset password.', 'error');
+    setFeedback();
+    try {
+      await sendPasswordResetEmail(auth, email);
+      setFeedback('If this email has an account, password-reset instructions have been sent.', 'success');
+    } catch (error) {
+      setFeedback(readableError(error), 'error');
+    }
+  });
+
+  els.resend.addEventListener('click', async () => {
+    if (!auth.currentUser) return;
+    try {
+      await sendEmailVerification(auth.currentUser);
+      setFeedback('A new verification email has been sent.', 'success');
+    } catch (error) {
+      setFeedback(readableError(error), 'error');
+    }
+  });
+
+  els.signOut.addEventListener('click', async () => {
+    try {
+      await signOut(auth);
+      setFeedback('You are signed out.', 'success');
+    } catch (error) {
+      setFeedback(readableError(error), 'error');
+    }
+  });
+
+  onAuthStateChanged(auth, user => {
+    const signedIn = Boolean(user);
+    els.formView.style.display = signedIn ? 'none' : '';
+    els.accountView.style.display = signedIn ? 'block' : 'none';
+    els.open.textContent = signedIn ? 'ACCOUNT' : 'SIGN IN';
+    if (!signedIn) return;
+    els.accountEmail.textContent = user.email || 'Signed-in account';
+    els.accountState.textContent = user.emailVerified ? 'EMAIL VERIFIED' : 'EMAIL NOT VERIFIED — CHECK YOUR INBOX';
+    els.accountState.classList.toggle('verified', user.emailVerified);
+    els.resend.style.display = user.emailVerified ? 'none' : '';
+  });
 </script>
 
 <script async defer
