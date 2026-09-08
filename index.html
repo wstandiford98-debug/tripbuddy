@@ -409,8 +409,11 @@
     <!-- CITY TABS BAR -->
     <div class="city-tabs-bar" id="city-tabs-bar">
       <button class="city-tab city-tab-overview active" onclick="showCityPage('overview', this)">📋 OVERVIEW</button>
+      <button class="city-tab" onclick="showCityPage('gps-route', this)">🧭 GPS &amp; ROUTE</button>
       <button class="city-tab" onclick="showCityPage('fuel-enroute', this)">⛽ FUEL ENROUTE</button>
       <button class="city-tab" onclick="showCityPage('eats-enroute', this)">🍽️ EATS ENROUTE</button>
+      <button class="city-tab" onclick="showCityPage('camping-rv', this)">🏕️ CAMPING &amp; RV</button>
+      <button class="city-tab" onclick="showCityPage('emergency-services', this)">🆘 EMERGENCY SERVICES</button>
       <button class="city-tab" onclick="showCityPage('crime-watch', this)">🚨 CRIME WATCH</button>
       <button class="city-tab" onclick="showCityPage('recipes', this)">👨‍🍳 RECIPES</button>
     </div>
@@ -427,6 +430,7 @@
         </div>
       </div>
 
+      <div class="city-report-page" id="page-gps-route"><div class="empty-state"><div class="empty-state-icon">🧭</div><div class="empty-state-title">CALCULATE ROUTE FIRST</div><div class="empty-state-sub">GPS guidance, distance, and drive-time tools will appear here.</div></div></div>
       <!-- FUEL ENROUTE PAGE -->
       <div class="city-report-page" id="page-fuel-enroute">
         <div class="empty-state">
@@ -445,6 +449,8 @@
         </div>
       </div>
 
+      <div class="city-report-page" id="page-camping-rv"><div class="empty-state"><div class="empty-state-icon">🏕️</div><div class="empty-state-title">CALCULATE ROUTE FIRST</div><div class="empty-state-sub">Camping and RV locations will appear for each route city.</div></div></div>
+      <div class="city-report-page" id="page-emergency-services"><div class="empty-state"><div class="empty-state-icon">🆘</div><div class="empty-state-title">CALCULATE ROUTE FIRST</div><div class="empty-state-sub">Emergency services will appear for each route city.</div></div></div>
       <!-- CRIME WATCH PAGE -->
       <div class="city-report-page" id="page-crime-watch">
         <div class="empty-state">
@@ -943,6 +949,11 @@
     return [...allChains].sort(() => Math.random() - 0.5).slice(0, 4);
   }
 
+  function tbSearch(q){return 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q);}
+  function tbLink(name,text,q,color){return '<a target="_blank" rel="noopener noreferrer" href="'+tbSearch(q)+'" style="display:block;text-decoration:none;background:var(--panel2);border-left:3px solid '+color+';padding:.65rem .75rem;margin:.45rem 0;color:var(--text);"><b style="color:'+color+';">'+name+'</b><span style="float:right;font:0.55rem Share Tech Mono,monospace;color:var(--muted);">OPEN MAP ↗</span><div style="font-size:.75rem;color:var(--muted);margin-top:.2rem;line-height:1.45;">'+text+'</div></a>';}
+  function tbStopGps(){if(window.tbGpsWatch)navigator.geolocation.clearWatch(window.tbGpsWatch);window.tbGpsWatch=null;var s=document.getElementById('tb-gps-status');if(s)s.textContent='Live GPS tracking is paused. TripBuddy does not store your location.';}
+  function tbStartGps(){var s=document.getElementById('tb-gps-status');if(!navigator.geolocation){s.textContent='GPS is unavailable in this browser. Use Open Active Route for navigation.';return;}tbStopGps();s.textContent='Requesting location permission…';window.tbGpsWatch=navigator.geolocation.watchPosition(function(p){var lat=p.coords.latitude.toFixed(5),lng=p.coords.longitude.toFixed(5),dest=lastRouteData.cities[lastRouteData.cities.length-1];s.innerHTML='<span style="color:var(--green);">● LIVE GPS: '+lat+', '+lng+' · ±'+Math.round(p.coords.accuracy)+' m</span><br><a style="color:var(--cyan);" target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps/dir/?api=1&origin='+lat+','+lng+'&destination='+encodeURIComponent(dest)+'&travelmode=driving">OPEN LIVE GPS ROUTE ↗</a>';},function(e){s.textContent='GPS is unavailable: '+e.message;},{enableHighAccuracy:true,maximumAge:15000,timeout:15000});}
+  function buildRouteServicePages(cities){var origin=cities[0],dest=cities[cities.length-1],dir='https://www.google.com/maps/dir/?api=1&origin='+encodeURIComponent(origin)+'&destination='+encodeURIComponent(dest)+'&travelmode=driving';document.getElementById('page-gps-route').innerHTML='<div class="section-label">// GPS & ROUTE GUIDANCE //</div><div style="background:var(--panel);border:1px solid var(--green);padding:.9rem;margin-top:.7rem;"><b style="font:700 1.25rem Barlow Condensed,sans-serif;color:var(--green);">'+origin.toUpperCase()+' → '+dest.toUpperCase()+'</b><div style="font-size:.78rem;color:var(--muted);margin-top:.35rem;">'+lastRouteData.totalMiles+' mi · '+lastRouteData.totalHours+' hrs · '+cities.length+' route cities</div><div class="btn-row" style="margin-top:.75rem;"><a class="btn-sm" style="text-decoration:none;color:var(--cyan);border-color:var(--cyan);" target="_blank" rel="noopener noreferrer" href="'+dir+'">OPEN ACTIVE ROUTE ↗</a><button class="btn-sm" onclick="tbStartGps()">START LIVE GPS</button><button class="btn-sm" onclick="tbStopGps()">STOP GPS</button></div><div id="tb-gps-status" style="font:0.62rem Share Tech Mono,monospace;color:var(--muted);margin-top:.7rem;">Start live GPS to use your browser location for active-route guidance. Location is not stored by TripBuddy.</div></div>';var camping=document.getElementById('page-camping-rv');camping.innerHTML='<div class="section-label">// CAMPING & RV — ALL ROUTE CITIES //</div><p style="font-size:.75rem;color:var(--muted);margin:.7rem 0;">Live Google Maps searches by route city. Confirm availability and overnight rules with each operator.</p>'+cities.map(function(city,i){return '<div style="background:var(--panel);border:1px solid var(--border);padding:.8rem;margin:.6rem 0;"><b style="color:var(--green);">'+(i===0?'🚀':i===cities.length-1?'🏁':'📍')+' STOP '+(i+1)+': '+city.toUpperCase()+'</b>'+tbLink('RV Parks & Campgrounds','Find current RV parks, tent sites, hookups, and reviews.','RV parks and campgrounds near '+city,'var(--green)')+tbLink('Overnight RV Parking','Check current overnight parking opportunities and restrictions.','overnight RV parking near '+city,'var(--cyan)')+tbLink('Public-Land Camping','Find public-land and dispersed-camping information; confirm local rules.','dispersed camping public land near '+city,'var(--amber)')+'</div>';}).join('');var emergency=document.getElementById('page-emergency-services');emergency.innerHTML='<div class="section-label">// EMERGENCY SERVICES — ALL ROUTE CITIES //</div><div style="background:rgba(255,68,68,.08);border:1px solid rgba(255,68,68,.45);padding:.75rem;margin:.7rem 0;font-size:.8rem;"><b style="color:var(--red);">FOR IMMEDIATE, LIFE-THREATENING EMERGENCIES, CALL 911.</b><br>Verify availability and follow local emergency guidance.</div>'+cities.map(function(city,i){return '<div style="background:var(--panel);border:1px solid var(--border);padding:.8rem;margin:.6rem 0;"><b style="color:var(--green);">'+(i===0?'🚀':i===cities.length-1?'🏁':'📍')+' STOP '+(i+1)+': '+city.toUpperCase()+'</b>'+tbLink('Hospital Emergency Rooms','Open current hospital emergency-room locations.','emergency room near '+city,'var(--red)')+tbLink('Urgent Care','Open current urgent-care locations.','urgent care near '+city,'var(--amber)')+tbLink('24-Hour Pharmacy','Locate pharmacies and confirm current hours.','24 hour pharmacy near '+city,'var(--cyan)')+tbLink('Police & Fire Services','Locate public-safety facilities. Call 911 for immediate emergencies.','police station fire station near '+city,'var(--green)')+'</div>';}).join('');}
   // --- BUILD CITY REPORTS ---
   function buildCityReports(cities, fuelPrice) {
     // Remove old city pages and tabs
@@ -985,6 +996,7 @@
     });
     overviewHTML += '</div>';
     overviewPage.innerHTML = overviewHTML;
+    buildRouteServicePages(cities);
 
     // --- FUEL ENROUTE SUMMARY PAGE ---
     const fuelPage = document.getElementById('page-fuel-enroute');
