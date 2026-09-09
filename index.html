@@ -16,6 +16,8 @@
       --red: #ff4444; --amber: #f59e0b;
     }
     body { background: var(--bg); color: var(--text); font-family: 'Barlow', sans-serif; min-height: 100vh; }
+    body.access-gate-active { overflow: hidden; }
+    body.access-gate-active > :not(#auth-overlay):not(script) { visibility: hidden; pointer-events: none; user-select: none; }
 
     /* HEADER */
     header { background: var(--panel); border-bottom: 2px solid var(--green); padding: 0.75rem 1.5rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 200; }
@@ -33,6 +35,8 @@
     .account-btn:hover, .account-btn:focus-visible { background: rgba(0,187,195,0.12); outline: none; }
     .auth-overlay { position: fixed; inset: 0; z-index: 1000; display: none; align-items: center; justify-content: center; padding: 1rem; background: rgba(3,8,16,0.82); }
     .auth-overlay.open { display: flex; }
+    .auth-overlay.auth-required { display: flex; }
+    .auth-overlay.auth-required .auth-close { display: none; }
     .auth-dialog { width: min(100%, 420px); background: var(--panel); border: 1px solid var(--cyan); box-shadow: 0 20px 60px rgba(0,0,0,0.55); padding: 1.1rem; position: relative; }
     .auth-close { position: absolute; top: 0.65rem; right: 0.7rem; border: none; background: transparent; color: var(--muted); font-size: 1.25rem; cursor: pointer; line-height: 1; padding: 0.25rem; }
     .auth-close:hover, .auth-close:focus-visible { color: var(--text); outline: 1px solid var(--cyan); }
@@ -288,7 +292,7 @@
     .crime-tip { background: rgba(245,158,11,0.08); border-left: 3px solid var(--amber); padding: 0.4rem 0.6rem; margin-top: 0.5rem; font-size: 0.74rem; color: var(--text); line-height: 1.5; }
   </style>
 </head>
-<body>
+<body class="access-gate-active">
 
 <header>
   <a href="https://urtripbuddy.app" class="logo">
@@ -308,7 +312,7 @@
     <button type="button" class="auth-close" id="auth-close" aria-label="Close account dialog">×</button>
     <div class="auth-kicker">// TRIPBUDDY ACCOUNT //</div>
     <h2 class="auth-title" id="auth-title">SIGN IN TO TRIPBUDDY</h2>
-    <p class="auth-copy" id="auth-copy">Use your email and password to create a verified TripBuddy account. Route planning remains available without an account.</p>
+    <p class="auth-copy" id="auth-copy">Access to TripBuddy requires a verified email account. We ask for your email to stop spam and nefarious activity.</p>
     <div id="auth-form-view">
       <div class="auth-mode-row" aria-label="Account action">
         <button type="button" class="auth-mode-btn active" id="auth-mode-signin">SIGN IN</button>
@@ -1509,7 +1513,7 @@
     els.signInMode.classList.toggle('active', !registering);
     els.registerMode.classList.toggle('active', registering);
     els.title.textContent = registering ? 'CREATE TRIPBUDDY ACCOUNT' : 'SIGN IN TO TRIPBUDDY';
-    els.copy.textContent = registering ? 'Create an account with a valid email. We will send a verification message after registration.' : 'Use your TripBuddy email and password. Route planning remains available without an account.';
+    els.copy.textContent = registering ? 'Create an account with a valid email. We will send a verification message after registration. We ask for your email to stop spam and nefarious activity.' : 'Sign in with your verified TripBuddy email and password. We ask for your email to stop spam and nefarious activity.';
     els.password.autocomplete = registering ? 'new-password' : 'current-password';
     els.submit.textContent = registering ? 'CREATE ACCOUNT' : 'SIGN IN';
     els.reset.style.display = registering ? 'none' : '';
@@ -1525,6 +1529,7 @@
   }
 
   function closeDialog() {
+    if (document.body.classList.contains('access-gate-active')) return;
     els.overlay.classList.remove('open');
     els.overlay.setAttribute('aria-hidden', 'true');
     if (previousFocus) previousFocus.focus();
@@ -1604,14 +1609,25 @@
 
   onAuthStateChanged(auth, user => {
     const signedIn = Boolean(user);
+    const hasVerifiedAccess = Boolean(user?.emailVerified);
+    document.body.classList.toggle('access-gate-active', !hasVerifiedAccess);
+    els.overlay.classList.toggle('auth-required', !hasVerifiedAccess);
+    els.overlay.classList.toggle('open', !hasVerifiedAccess);
+    els.overlay.setAttribute('aria-hidden', hasVerifiedAccess ? 'true' : 'false');
     els.formView.style.display = signedIn ? 'none' : '';
     els.accountView.style.display = signedIn ? 'block' : 'none';
     els.open.textContent = signedIn ? 'ACCOUNT' : 'SIGN IN';
-    if (!signedIn) return;
+    if (!signedIn) {
+      setMode('signin');
+      setFeedback('Sign in or create a verified account to access TripBuddy.');
+      window.setTimeout(() => els.email.focus(), 0);
+      return;
+    }
     els.accountEmail.textContent = user.email || 'Signed-in account';
     els.accountState.textContent = user.emailVerified ? 'EMAIL VERIFIED' : 'EMAIL NOT VERIFIED — CHECK YOUR INBOX';
     els.accountState.classList.toggle('verified', user.emailVerified);
     els.resend.style.display = user.emailVerified ? 'none' : '';
+    if (!hasVerifiedAccess) setFeedback('Verify your email, then refresh this page to unlock TripBuddy.', 'error');
   });
 </script>
 
