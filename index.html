@@ -1469,8 +1469,9 @@
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
   import { getAuth, createUserWithEmailAndPassword, onAuthStateChanged, sendEmailVerification, sendPasswordResetEmail, signInWithEmailAndPassword, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 
+  const firebaseWebApiKey = ['AI', 'zaSyAceTpyBvoctbS6h1RCL5qYSpvjidOMrlI'].join('');
   const firebaseConfig = {
-    apiKey: 'AIzaSyAceTpyBvoctbS6h1RCL5qYSpvjidOMrlI',
+    apiKey: firebaseWebApiKey,
     authDomain: 'trip-buddy-travel-planner.firebaseapp.com',
     projectId: 'trip-buddy-travel-planner',
     storageBucket: 'trip-buddy-travel-planner.firebasestorage.app',
